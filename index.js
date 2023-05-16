@@ -1,6 +1,19 @@
 const express = require('express')
 const app = express()
 
+const admin = require("firebase-admin")
+
+const credentials = require('./key.json')
+
+admin.initializeApp({
+    credentials : admin.credential.cert(credentials)
+})
+
+const db  = admin.firestore();
+app.use(express.json)
+app.use(express.urlencoded({extended: true}))
+
+
 app.get("/", (req,res) => {
 
     res.send("Hello we are Lab2Client")
