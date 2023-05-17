@@ -9,21 +9,21 @@ var admin = require("firebase-admin");
 var credentials = require('./key.json');
 
 admin.initializeApp({
-  credentials: admin.credential.cert(credentials)
+  credential: admin.credential.cert(credentials)
 });
 app.use(express.json());
 app.use(express.urlencoded({
   extended: true
 }));
 var db = admin.firestore();
-app.post('/create', function _callee(req, res) {
+app.post("/create", function _callee(req, res) {
   var id, labjson, response;
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           try {
-            console.log(req.body.email);
+            console.log(req.body);
             id = req.body.email;
             labjson = {
               email: req.body.email,

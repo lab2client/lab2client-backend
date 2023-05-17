@@ -6,7 +6,7 @@ const admin = require("firebase-admin");
 const credentials = require('./key.json');
 
 admin.initializeApp({
-    credentials : admin.credential.cert(credentials)
+    credential : admin.credential.cert(credentials)
 });
 
 
@@ -14,9 +14,9 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 const db  = admin.firestore();
 
-app.post('/create', async (req,res) => {
+app.post("/create", async (req,res) => {
     try {
-        console.log(req.body.email)
+        console.log(req.body)
         const id = req.body.email;
         const labjson = {
             email: req.body.email,
