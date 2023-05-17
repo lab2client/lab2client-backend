@@ -12,11 +12,11 @@ admin.initializeApp({
   credentials: admin.credential.cert(credentials)
 });
 var db = admin.firestore();
-app.use(express.json);
+app.use(express.json());
 app.use(express.urlencoded({
   extended: true
 }));
-app.get("/", function (req, res) {
+app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client");
 });
 app.listen(5000, function () {

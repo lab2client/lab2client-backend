@@ -10,11 +10,11 @@ admin.initializeApp({
 })
 
 const db  = admin.firestore();
-app.use(express.json)
+app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 
-app.get("/", (req,res) => {
+app.get("/home", (req,res) => {
 
     res.send("Hello we are Lab2Client")
 
