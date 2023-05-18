@@ -17,15 +17,62 @@ const db  = admin.firestore();
 app.post("/create", async (req,res) => {
     try {
         console.log(req.body)
-        const id = req.body.email;
+        const id = req.body.email_identification;
         const labjson = {
+            identification : {
+            email_identification: req.body.email_identification,
+            institution_name: req.body.institution_name,
+            research_facillity: req.body.research_facillity,
+            street_address: req.body.street_address,
+            building_name: req.body.research_facillity,
+            city: req.body.city,
+            province: req.body.province,
+            postal_code: req.body.postal_code,
+        },
+        contact: {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            title: req.body.title,
+            office: req.body.office,
             email: req.body.email,
-            university: req.body.university,
-            department: req.body.department,
-            lab: req.body.lab,
-            area: req.body.area,
+            telephone: req.body.telephone,
+            language: req.body.language,
+            first_name2: req.body.first_name2,
+            last_name2: req.body.last_name2,
+            title2: req.body.title2,
+            office2: req.body.office2,
+            email2: req.body.email2,
+            telephone2: req.body.telephone2,
+            language2: req.body.language2,
+        },
+        CFI_fundec_facilities: {
+            CFI_project_number: req.body.CFI_fundec_facilities,
+            Project_leader_first_name: req.body.Project_leader_first_name,
+            Project_leader_last_name: req.body.Project_leader_last_name,
+            Project_leader_email: req.body.Project_leader_email,
+        },
+        Fields_of_research : {
 
+            fields: req.body.fields,
+
+        },
+        Sectors_of_application: {
+
+            applications: req.body.application,
+        },
+        research : {
+            DESCRIPTION_OF_YOUR_FACILITY : req.body.DESCRIPTION_OF_YOUR_FACILITY,
+            areas_of_expertise: req.body.areas_of_expertise,
+            Research_services: req.body.Research_services,
+            DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE: req.body.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE,
+            PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS: req.body.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS,
+            website: req.body.website,
+            Additional_information : req.body.Additional_information,
+            Social_media_platforms : req.body.Social_media_platforms,
+            LOGOS: req.body.logos,
+        
         }
+    }
         const response = db.collection("users").doc(id).set(labjson);
         res.send(response);
     }
@@ -73,33 +120,30 @@ app.post("/create", async (req,res) => {
         }
     })
 
-    async function searchSimilarData(searchTerm, threshold) {
+    // async function searchSimilarData(searchTerm, threshold) {
 
-        const userRef = db.collection('users');
-        const response = await userRef.get();
+    //     const userRef = db.collection('users');
+    //     const response = await userRef.get();
 
-        const similarDocuments = [];
+    //     const similarDocuments = [];
 
-        response.forEach((doc) => {
+    //     response.forEach((doc) => {
 
-          const data = doc.data();
+    //       const data = doc.data();
           
 
-          const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.email);
+    //       const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.lab);
           
-          if (similarity > threshold) {
-            similarDocuments.push({
-              id: doc.email,
-              data: data,
-            });
-          }
-        });
+    //       if (similarity > threshold) {
+    //         similarDocuments.push(data);
+    //       }
+    //     });
 
-        return similarDocuments;
-      }
-      console.log("here is the search")
+    //     return similarDocuments;
+    //   }
+    //   console.log("here is the search")
 
-      console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
+    //   console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
       
 
 

@@ -26,13 +26,57 @@ app.post("/create", function _callee(req, res) {
         case 0:
           try {
             console.log(req.body);
-            id = req.body.email;
+            id = req.body.email_identification;
             labjson = {
-              email: req.body.email,
-              university: req.body.university,
-              department: req.body.department,
-              lab: req.body.lab,
-              area: req.body.area
+              identification: {
+                email_identification: req.body.email_identification,
+                institution_name: req.body.institution_name,
+                research_facillity: req.body.research_facillity,
+                street_address: req.body.street_address,
+                building_name: req.body.research_facillity,
+                city: req.body.city,
+                province: req.body.province,
+                postal_code: req.body.postal_code
+              },
+              contact: {
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                title: req.body.title,
+                office: req.body.office,
+                email: req.body.email,
+                telephone: req.body.telephone,
+                language: req.body.language,
+                first_name2: req.body.first_name2,
+                last_name2: req.body.last_name2,
+                title2: req.body.title2,
+                office2: req.body.office2,
+                email2: req.body.email2,
+                telephone2: req.body.telephone2,
+                language2: req.body.language2
+              },
+              CFI_fundec_facilities: {
+                CFI_project_number: req.body.CFI_fundec_facilities,
+                Project_leader_first_name: req.body.Project_leader_first_name,
+                Project_leader_last_name: req.body.Project_leader_last_name,
+                Project_leader_email: req.body.Project_leader_email
+              },
+              Fields_of_research: {
+                fields: req.body.fields
+              },
+              Sectors_of_application: {
+                applications: req.body.application
+              },
+              research: {
+                DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
+                areas_of_expertise: req.body.areas_of_expertise,
+                Research_services: req.body.Research_services,
+                DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE: req.body.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE,
+                PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS: req.body.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS,
+                website: req.body.website,
+                Additional_information: req.body.Additional_information,
+                Social_media_platforms: req.body.Social_media_platforms,
+                LOGOS: req.body.logos
+              }
             };
             response = db.collection("users").doc(id).set(labjson);
             res.send(response);
@@ -128,44 +172,22 @@ app["delete"]('/delete/:id', function _callee4(req, res) {
       }
     }
   });
-});
+}); // async function searchSimilarData(searchTerm, threshold) {
+//     const userRef = db.collection('users');
+//     const response = await userRef.get();
+//     const similarDocuments = [];
+//     response.forEach((doc) => {
+//       const data = doc.data();
+//       const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.lab);
+//       if (similarity > threshold) {
+//         similarDocuments.push(data);
+//       }
+//     });
+//     return similarDocuments;
+//   }
+//   console.log("here is the search")
+//   console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
 
-function searchSimilarData(searchTerm, threshold) {
-  var userRef, response, similarDocuments;
-  return regeneratorRuntime.async(function searchSimilarData$(_context5) {
-    while (1) {
-      switch (_context5.prev = _context5.next) {
-        case 0:
-          userRef = db.collection('users');
-          _context5.next = 3;
-          return regeneratorRuntime.awrap(userRef.get());
-
-        case 3:
-          response = _context5.sent;
-          similarDocuments = [];
-          response.forEach(function (doc) {
-            var data = doc.data();
-            var similarity = stringSimilarity.compareTwoStrings(searchTerm, data.email);
-
-            if (similarity > threshold) {
-              similarDocuments.push({
-                id: doc.email,
-                data: data
-              });
-            }
-          });
-          return _context5.abrupt("return", similarDocuments);
-
-        case 7:
-        case "end":
-          return _context5.stop();
-      }
-    }
-  });
-}
-
-console.log("here is the search");
-console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?", 0.3));
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });
