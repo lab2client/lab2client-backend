@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-
+const stringSimilarity = require('string-similarity');
 const admin = require("firebase-admin");
 
 const credentials = require('./key.json');
@@ -72,6 +72,35 @@ app.post("/create", async (req,res) => {
             res.send(error)
         }
     })
+
+    async function searchSimilarData(searchTerm, threshold) {
+
+        const userRef = db.collection('users');
+        const response = await userRef.get();
+
+        const similarDocuments = [];
+
+        response.forEach((doc) => {
+
+          const data = doc.data();
+          
+
+          const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.email);
+          
+          if (similarity > threshold) {
+            similarDocuments.push({
+              id: doc.email,
+              data: data,
+            });
+          }
+        });
+
+        return similarDocuments;
+      }
+      console.log("here is the search")
+
+      console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
+      
 
 
 
