@@ -45,6 +45,39 @@ app.post("/create", function _callee(req, res) {
     }
   });
 });
+app.get('/getall', function _callee2(req, res) {
+  var userRef, response, array;
+  return regeneratorRuntime.async(function _callee2$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.prev = 0;
+          userRef = db.collection('users');
+          _context2.next = 4;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 4:
+          response = _context2.sent;
+          array = [];
+          response.forEach(function (doc) {
+            array.push(doc.data());
+          });
+          res.send(array);
+          _context2.next = 13;
+          break;
+
+        case 10:
+          _context2.prev = 10;
+          _context2.t0 = _context2["catch"](0);
+          res.send(_context2.t0);
+
+        case 13:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  }, null, null, [[0, 10]]);
+});
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });

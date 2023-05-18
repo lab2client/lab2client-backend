@@ -34,6 +34,24 @@ app.post("/create", async (req,res) => {
     }
     })
 
+    app.get('/getall', async(req,res) => {
+
+        try {
+            const userRef = db.collection('users');
+            const response = await userRef.get();
+            let array = [];
+            response.forEach(doc => {
+                array.push(doc.data());
+            })
+            res.send(array);
+        }
+        catch(error){
+            res.send(error);
+        }
+
+
+    })
+
 
 
 app.get("/home", (req,res) => {
