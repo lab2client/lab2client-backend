@@ -107,6 +107,26 @@ app.get('/getspecific/:id', function _callee3(req, res) {
     }
   }, null, null, [[0, 8]]);
 });
+app["delete"]('/delete/:id', function _callee4(req, res) {
+  var response;
+  return regeneratorRuntime.async(function _callee4$(_context4) {
+    while (1) {
+      switch (_context4.prev = _context4.next) {
+        case 0:
+          try {
+            response = db.collection("users").doc(req.params.id)["delete"]();
+            res.send(response);
+          } catch (error) {
+            res.send(error);
+          }
+
+        case 1:
+        case "end":
+          return _context4.stop();
+      }
+    }
+  });
+});
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });
