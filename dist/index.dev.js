@@ -172,22 +172,41 @@ app["delete"]('/delete/:id', function _callee4(req, res) {
       }
     }
   });
-}); // async function searchSimilarData(searchTerm, threshold) {
-//     const userRef = db.collection('users');
-//     const response = await userRef.get();
-//     const similarDocuments = [];
-//     response.forEach((doc) => {
-//       const data = doc.data();
-//       const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.lab);
-//       if (similarity > threshold) {
-//         similarDocuments.push(data);
-//       }
-//     });
-//     return similarDocuments;
-//   }
-//   console.log("here is the search")
-//   console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
+});
 
+function searchSimilarData(searchTerm, threshold) {
+  var userRef, response, similarDocuments;
+  return regeneratorRuntime.async(function searchSimilarData$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          userRef = db.collection('users');
+          _context5.next = 3;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 3:
+          response = _context5.sent;
+          similarDocuments = [];
+          response.forEach(function (doc) {
+            var data = doc.data();
+            var similarity = stringSimilarity.compareTwoStrings(searchTerm, data.lab);
+
+            if (similarity > threshold) {
+              similarDocuments.push(data);
+            }
+          });
+          return _context5.abrupt("return", similarDocuments);
+
+        case 7:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  });
+}
+
+console.log("here is the search");
+console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?", 0.3));
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });

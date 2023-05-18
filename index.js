@@ -118,34 +118,31 @@ app.post("/create", async (req,res) => {
         }
     })
 
-    // async function searchSimilarData(searchTerm, threshold) {
+    async function searchSimilarData(searchTerm, threshold) {
 
-    //     const userRef = db.collection('users');
-    //     const response = await userRef.get();
+        const userRef = db.collection('users');
+        const response = await userRef.get();
 
-    //     const similarDocuments = [];
+        const similarDocuments = [];
 
-    //     response.forEach((doc) => {
+        response.forEach((doc) => {
 
-    //       const data = doc.data();
+          const data = doc.data();
           
 
-    //       const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.lab);
+          const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.lab);
           
-    //       if (similarity > threshold) {
-    //         similarDocuments.push(data);
-    //       }
-    //     });
+          if (similarity > threshold) {
+            similarDocuments.push(data);
+          }
+        });
 
-    //     return similarDocuments;
-    //   }
-    //   console.log("here is the search")
+        return similarDocuments;
+      }
+      console.log("here is the search")
 
-    //   console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
+      console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
       
-
-
-
 
 app.get("/home", (req,res) => {
 
