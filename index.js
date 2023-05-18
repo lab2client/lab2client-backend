@@ -45,23 +45,20 @@ app.post("/create", async (req,res) => {
             telephone2: req.body.telephone2,
             language2: req.body.language2,
         },
-        CFI_fundec_facilities: {
-            CFI_project_number: req.body.CFI_fundec_facilities,
+        facilities: {
+            CFI_project_number: req.body.CFI_project_number,
             Project_leader_first_name: req.body.Project_leader_first_name,
             Project_leader_last_name: req.body.Project_leader_last_name,
             Project_leader_email: req.body.Project_leader_email,
         },
-        Fields_of_research : {
-
-            fields: req.body.fields,
-
+        Fields_of_research: {
+            fields: req.body.fields
         },
         Sectors_of_application: {
-
-            applications: req.body.application,
+            applications: req.body.applications
         },
-        research : {
-            DESCRIPTION_OF_YOUR_FACILITY : req.body.DESCRIPTION_OF_YOUR_FACILITY,
+        research: {
+            DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
             areas_of_expertise: req.body.areas_of_expertise,
             Research_services: req.body.Research_services,
             DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE: req.body.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE,
@@ -69,7 +66,7 @@ app.post("/create", async (req,res) => {
             website: req.body.website,
             Additional_information : req.body.Additional_information,
             Social_media_platforms : req.body.Social_media_platforms,
-            LOGOS: req.body.logos,
+            LOGOS: req.body.LOGOS
         
         }
     }
@@ -80,6 +77,7 @@ app.post("/create", async (req,res) => {
         res.send(error)
     }
     });
+
 
     app.get('/getall', async(req,res) => {
 

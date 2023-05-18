@@ -54,8 +54,8 @@ app.post("/create", function _callee(req, res) {
                 telephone2: req.body.telephone2,
                 language2: req.body.language2
               },
-              CFI_fundec_facilities: {
-                CFI_project_number: req.body.CFI_fundec_facilities,
+              facilities: {
+                CFI_project_number: req.body.CFI_project_number,
                 Project_leader_first_name: req.body.Project_leader_first_name,
                 Project_leader_last_name: req.body.Project_leader_last_name,
                 Project_leader_email: req.body.Project_leader_email
@@ -64,7 +64,7 @@ app.post("/create", function _callee(req, res) {
                 fields: req.body.fields
               },
               Sectors_of_application: {
-                applications: req.body.application
+                applications: req.body.applications
               },
               research: {
                 DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
@@ -75,7 +75,7 @@ app.post("/create", function _callee(req, res) {
                 website: req.body.website,
                 Additional_information: req.body.Additional_information,
                 Social_media_platforms: req.body.Social_media_platforms,
-                LOGOS: req.body.logos
+                LOGOS: req.body.LOGOS
               }
             };
             response = db.collection("users").doc(id).set(labjson);
