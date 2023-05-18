@@ -32,7 +32,7 @@ app.post("/create", async (req,res) => {
     catch(error) {
         res.send(error)
     }
-    })
+    });
 
     app.get('/getall', async(req,res) => {
 
@@ -49,8 +49,21 @@ app.post("/create", async (req,res) => {
             res.send(error);
         }
 
+    });
 
-    })
+    app.get('/getspecific/:id', async (req,res) => {
+
+        try {
+            const userRef = db.collection("users").doc(req.params.id);
+            const response = await userRef.get();
+            res.send(response.data());
+
+        }
+        catch(error){
+            res.send(error)
+        }
+    });
+
 
 
 

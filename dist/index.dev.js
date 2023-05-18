@@ -78,6 +78,35 @@ app.get('/getall', function _callee2(req, res) {
     }
   }, null, null, [[0, 10]]);
 });
+app.get('/getspecific/:id', function _callee3(req, res) {
+  var userRef, response;
+  return regeneratorRuntime.async(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.prev = 0;
+          userRef = db.collection("users").doc(req.params.id);
+          _context3.next = 4;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 4:
+          response = _context3.sent;
+          res.send(response.data());
+          _context3.next = 11;
+          break;
+
+        case 8:
+          _context3.prev = 8;
+          _context3.t0 = _context3["catch"](0);
+          res.send(_context3.t0);
+
+        case 11:
+        case "end":
+          return _context3.stop();
+      }
+    }
+  }, null, null, [[0, 8]]);
+});
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });
