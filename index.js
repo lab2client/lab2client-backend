@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
-const stringSimilarity = require('string-similarity');
+// const stringSimilarity = require('string-similarity');
+// import { stringSimilarity } from "string-similarity-js";
 const admin = require("firebase-admin");
 
 const credentials = require('./key.json');
@@ -118,31 +119,29 @@ app.post("/create", async (req,res) => {
         }
     })
 
-    async function searchSimilarData(searchTerm, threshold) {
+    // async function searchSimilarData(searchTerm, threshold) {
 
-        const userRef = db.collection('users');
-        const response = await userRef.get();
+    //     const userRef = db.collection('users');
+    //     const response = await userRef.get();
 
-        const similarDocuments = [];
+    //     const similarDocuments = [];
 
-        response.forEach((doc) => {
+    //     response.forEach(doc => {
 
-          const data = doc.data();
+    //       const data = doc.data();
           
 
-          const similarity = stringSimilarity.compareTwoStrings(searchTerm, data.lab);
+    //       const similarity = stringSimilarity(searchTerm, data.applications);
           
-          if (similarity > threshold) {
-            similarDocuments.push(data);
-          }
-        });
+    //       if (similarity > threshold) {
+    //         similarDocuments.push(data);
+    //       }
+    //     });
 
-        return similarDocuments;
-      }
-      console.log("here is the search")
-
-      console.log(searchSimilarData("I need a lab to do the electron spectroscopy ?",0.3))
-      
+    //     return similarDocuments;
+    //   }
+            // console.log(searchSimilarData("I need a lab to do the computer vision ?",0.3))
+// stringSimilarity("The quick brown fox jumps over the lazy dog", "Lorem ipsum")
 
 app.get("/home", (req,res) => {
 
