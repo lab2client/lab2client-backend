@@ -4,9 +4,9 @@ var express = require('express');
 
 var app = express();
 
-var cors = require('cors'); // const stringSimilarity = require('string-similarity');
-// import { stringSimilarity } from "string-similarity-js";
+var cors = require('cors');
 
+var stringSimilarity = require("string-similarity");
 
 var admin = require("firebase-admin");
 
@@ -175,22 +175,45 @@ app["delete"]('/delete/:id', function _callee4(req, res) {
       }
     }
   });
-}); // async function searchSimilarData(searchTerm, threshold) {
-//     const userRef = db.collection('users');
-//     const response = await userRef.get();
-//     const similarDocuments = [];
-//     response.forEach(doc => {
-//       const data = doc.data();
-//       const similarity = stringSimilarity(searchTerm, data.applications);
-//       if (similarity > threshold) {
-//         similarDocuments.push(data);
-//       }
-//     });
-//     return similarDocuments;
-//   }
-// console.log(searchSimilarData("I need a lab to do the computer vision ?",0.3))
-// stringSimilarity("The quick brown fox jumps over the lazy dog", "Lorem ipsum")
+});
+app.get('/search/:field', function _callee5(req, res) {
+  var field, userRef, response, array;
+  return regeneratorRuntime.async(function _callee5$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          _context5.prev = 0;
+          field = req.params.id;
+          userRef = db.collection('users');
+          _context5.next = 5;
+          return regeneratorRuntime.awrap(userRef.get());
 
+        case 5:
+          response = _context5.sent;
+          array = [];
+          response.forEach(function (doc) {
+            if (stringSimilarity.compareTwoStrings(field, doc.city) > 0.5) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          _context5.next = 14;
+          break;
+
+        case 11:
+          _context5.prev = 11;
+          _context5.t0 = _context5["catch"](0);
+          res.send(_context5.t0);
+
+        case 14:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, null, null, [[0, 11]]);
+});
+var similarity = stringSimilarity.compareTwoStrings("healed", "sealed");
+console.log(similarity);
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });

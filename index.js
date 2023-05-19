@@ -1,8 +1,7 @@
 const express = require('express');
 const app = express();
 var cors = require('cors')
-// const stringSimilarity = require('string-similarity');
-// import { stringSimilarity } from "string-similarity-js";
+var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 
 const credentials = require('./key.json');
@@ -120,29 +119,29 @@ app.post("/create", async (req,res) => {
         }
     })
 
-    // async function searchSimilarData(searchTerm, threshold) {
+    app.get('/search/:field', async(req,res) => {
 
-    //     const userRef = db.collection('users');
-    //     const response = await userRef.get();
+        try {
 
-    //     const similarDocuments = [];
+            const field = req.params.id
+            const userRef = db.collection('users');
+            const response = await userRef.get();
+            let array = [];
+            response.forEach(doc => {
+                if(stringSimilarity.compareTwoStrings(field, doc.city )>0.5){
+                array.push(doc.data())
+                }
+            })
+            res.send(array);
+        }
+        catch(error){
+            res.send(error);
+        }
 
-    //     response.forEach(doc => {
+    });
 
-    //       const data = doc.data();
-          
-
-    //       const similarity = stringSimilarity(searchTerm, data.applications);
-          
-    //       if (similarity > threshold) {
-    //         similarDocuments.push(data);
-    //       }
-    //     });
-
-    //     return similarDocuments;
-    //   }
-            // console.log(searchSimilarData("I need a lab to do the computer vision ?",0.3))
-// stringSimilarity("The quick brown fox jumps over the lazy dog", "Lorem ipsum")
+var similarity = stringSimilarity.compareTwoStrings("healed", "sealed");
+console.log(similarity)
 
 app.get("/home", (req,res) => {
 

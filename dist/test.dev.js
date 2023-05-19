@@ -1,12 +1,14 @@
 "use strict";
 
-var axios = require('axios');
+// const axios = require('axios');
+//   axios.get('https://lab2client.herokuapp.com/getall')
+//   .then(function (response) {
+//     const data = response.data;
+//     for(let index=0;index<=data.length; index++){
+//       console.log(data[index]);
+//     }
+//     });
+var stringSimilarity = require("string-similarity");
 
-axios.get('https://lab2client.herokuapp.com/getall').then(function (response) {
-  var data = response.data;
-  data.forEach(function (item) {
-    console.log(item);
-  });
-})["catch"](function (error) {
-  console.error('Error:', error);
-});
+var similarity = stringSimilarity.compareTwoStrings("healed", "sealed");
+console.log(similarity);
