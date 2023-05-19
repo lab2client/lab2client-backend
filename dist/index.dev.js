@@ -2,8 +2,11 @@
 
 var express = require('express');
 
-var app = express(); // const stringSimilarity = require('string-similarity');
+var app = express();
+
+var cors = require('cors'); // const stringSimilarity = require('string-similarity');
 // import { stringSimilarity } from "string-similarity-js";
+
 
 var admin = require("firebase-admin");
 
