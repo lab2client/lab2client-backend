@@ -130,12 +130,11 @@ app.post("/create", async (req,res) => {
           snapshot.forEach((doc) => {
             const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
             console.log(similarity)
-            if (similarity > 0) {
+            if (similarity > 0.6) {
               array.push(doc.data());
             }
           });
           res.send(array);
-          console.log(array);
         } catch (error) {
           res.send(error);
         }

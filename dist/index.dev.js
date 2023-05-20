@@ -196,26 +196,25 @@ app.get('/search/:field', function _callee5(req, res) {
             var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
             console.log(similarity);
 
-            if (similarity > 0) {
+            if (similarity > 0.6) {
               array.push(doc.data());
             }
           });
           res.send(array);
-          console.log(array);
-          _context5.next = 16;
+          _context5.next = 15;
           break;
 
-        case 13:
-          _context5.prev = 13;
+        case 12:
+          _context5.prev = 12;
           _context5.t0 = _context5["catch"](0);
           res.send(_context5.t0);
 
-        case 16:
+        case 15:
         case "end":
           return _context5.stop();
       }
     }
-  }, null, null, [[0, 13]]);
+  }, null, null, [[0, 12]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
