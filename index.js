@@ -119,29 +119,29 @@ app.post("/create", async (req,res) => {
         }
     })
 
-    app.get('/search/:field', async(req,res) => {
-
+    app.get('/search/:field', async (req, res) => {
         try {
-
-            const field = req.params.id
-            const userRef = db.collection('users');
-            const response = await userRef.get();
-            let array = [];
-            response.forEach(doc => {
-                if(stringSimilarity.compareTwoStrings(field, doc.city )>0.5){
-                array.push(doc.data())
-                }
-            })
-            res.send(array);
+          const user_search = req.params.field;
+          console.log(user_search);
+          const userRef = db.collection('users');
+          const snapshot = await userRef.get();
+      
+          let array = [];
+          snapshot.forEach((doc) => {
+            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
+            console.log(similarity)
+            if (similarity > 0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          console.log(array);
+        } catch (error) {
+          res.send(error);
         }
-        catch(error){
-            res.send(error);
-        }
+      });
 
-    });
 
-var similarity = stringSimilarity.compareTwoStrings("healed", "sealed");
-console.log(similarity)
 
 app.get("/home", (req,res) => {
 

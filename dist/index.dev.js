@@ -177,43 +177,46 @@ app["delete"]('/delete/:id', function _callee4(req, res) {
   });
 });
 app.get('/search/:field', function _callee5(req, res) {
-  var field, userRef, response, array;
+  var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee5$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
           _context5.prev = 0;
-          field = req.params.id;
+          user_search = req.params.field;
+          console.log(user_search);
           userRef = db.collection('users');
-          _context5.next = 5;
+          _context5.next = 6;
           return regeneratorRuntime.awrap(userRef.get());
 
-        case 5:
-          response = _context5.sent;
+        case 6:
+          snapshot = _context5.sent;
           array = [];
-          response.forEach(function (doc) {
-            if (stringSimilarity.compareTwoStrings(field, doc.city) > 0.5) {
+          snapshot.forEach(function (doc) {
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
+            console.log(similarity);
+
+            if (similarity > 0) {
               array.push(doc.data());
             }
           });
           res.send(array);
-          _context5.next = 14;
+          console.log(array);
+          _context5.next = 16;
           break;
 
-        case 11:
-          _context5.prev = 11;
+        case 13:
+          _context5.prev = 13;
           _context5.t0 = _context5["catch"](0);
           res.send(_context5.t0);
 
-        case 14:
+        case 16:
         case "end":
           return _context5.stop();
       }
     }
-  }, null, null, [[0, 11]]);
+  }, null, null, [[0, 13]]);
 });
-var similarity = stringSimilarity.compareTwoStrings("healed", "sealed");
-console.log(similarity);
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });
