@@ -232,6 +232,47 @@ app.get('/search/:field', function _callee5(req, res) {
     }
   }, null, null, [[0, 12]]);
 });
+app.get('/email/:field', function _callee6(req, res) {
+  var user_search, userRef, snapshot, array;
+  return regeneratorRuntime.async(function _callee6$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          _context6.prev = 0;
+          user_search = req.params.field;
+          console.log(user_search);
+          userRef = db.collection('users');
+          _context6.next = 6;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 6:
+          snapshot = _context6.sent;
+          array = [];
+          snapshot.forEach(function (doc) {
+            console.log(doc.data().identification.city);
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.email_identification);
+            console.log(similarity);
+
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          _context6.next = 15;
+          break;
+
+        case 12:
+          _context6.prev = 12;
+          _context6.t0 = _context6["catch"](0);
+          res.send(_context6.t0);
+
+        case 15:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  }, null, null, [[0, 12]]);
+});
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });

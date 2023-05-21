@@ -144,6 +144,28 @@ app.post("/create", async (req,res) => {
         }
       });
 
+      app.get('/email/:field', async (req, res) => {
+        try {
+          const user_search = req.params.field;
+          console.log(user_search);
+          const userRef = db.collection('users');
+          const snapshot = await userRef.get();
+      
+          let array = [];
+          snapshot.forEach((doc) => {
+            console.log(doc.data().identification.city)
+            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.email_identification);
+            console.log(similarity)
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+        } catch (error) {
+          res.send(error);
+        }
+      });
+
 
 
 app.get("/home", (req,res) => {
