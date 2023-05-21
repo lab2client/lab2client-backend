@@ -73,6 +73,7 @@ app.post("/create", async (req,res) => {
     }
 
     const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
+    console.log(id)
     await db.collection('users').doc(id).set(labjson);
         res.send(response);
     }
@@ -130,10 +131,10 @@ app.post("/create", async (req,res) => {
       
           let array = [];
           snapshot.forEach((doc) => {
-            doc.data().research.Research_services
-            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().research.Research_services);
+            console.log(doc.data().identification.city)
+            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
             console.log(similarity)
-            if (similarity > 0.1) {
+            if (similarity > 0.5) {
               array.push(doc.data());
             }
           });

@@ -83,25 +83,26 @@ app.post("/create", function _callee(req, res) {
             }
           };
           id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-          _context.next = 6;
+          console.log(id);
+          _context.next = 7;
           return regeneratorRuntime.awrap(db.collection('users').doc(id).set(labjson));
 
-        case 6:
+        case 7:
           res.send(response);
-          _context.next = 12;
+          _context.next = 13;
           break;
 
-        case 9:
-          _context.prev = 9;
+        case 10:
+          _context.prev = 10;
           _context.t0 = _context["catch"](0);
           res.send(_context.t0);
 
-        case 12:
+        case 13:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 9]]);
+  }, null, null, [[0, 10]]);
 });
 app.get('/getall', function _callee2(req, res) {
   var userRef, _response, array;
@@ -207,11 +208,11 @@ app.get('/search/:field', function _callee5(req, res) {
           snapshot = _context5.sent;
           array = [];
           snapshot.forEach(function (doc) {
-            doc.data().research.Research_services;
-            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().research.Research_services);
+            console.log(doc.data().identification.city);
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
             console.log(similarity);
 
-            if (similarity > 0.1) {
+            if (similarity > 0.5) {
               array.push(doc.data());
             }
           });
