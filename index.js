@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 var cors = require('cors')
+var crypto = require('crypto');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 
@@ -18,7 +19,6 @@ const db  = admin.firestore();
 app.post("/create", async (req,res) => {
     try {
         console.log(req.body)
-        const id = req.body.email_identification;
         const labjson = {
             identification : {
             email_identification: req.body.email_identification,
@@ -71,7 +71,9 @@ app.post("/create", async (req,res) => {
         
         }
     }
-        const response = db.collection("users").doc(id).set(labjson);
+
+    const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
+    await db.collection('users').doc(id).set(labjson);
         res.send(response);
     }
     catch(error) {
@@ -128,9 +130,10 @@ app.post("/create", async (req,res) => {
       
           let array = [];
           snapshot.forEach((doc) => {
-            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
+            doc.data().research.Research_services
+            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().research.Research_services);
             console.log(similarity)
-            if (similarity > 0.6) {
+            if (similarity > 0.1) {
               array.push(doc.data());
             }
           });
