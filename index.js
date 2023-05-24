@@ -4,7 +4,6 @@ var cors = require('cors')
 var crypto = require('crypto');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
-
 const credentials = require('./key.json');
 
 admin.initializeApp({
@@ -131,6 +130,7 @@ app.post("/create", async (req,res) => {
       
           let array = [];
           snapshot.forEach((doc) => {
+
             console.log(doc.data().identification.city)
             const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
             console.log(similarity)
@@ -155,6 +155,29 @@ app.post("/create", async (req,res) => {
           snapshot.forEach((doc) => {
             console.log(doc.data().identification.city)
             const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.email_identification);
+            console.log(similarity)
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+        } catch (error) {
+          res.send(error);
+        }
+      });
+
+
+      app.get('/word/:field', async (req, res) => {
+        try {
+          const user_search = req.params.field;
+          console.log(user_search);
+          const userRef = db.collection('users');
+          const snapshot = await userRef.get();
+      
+          let array = [];
+          snapshot.forEach((doc) => {
+            const jsonString = JSON.stringify(doc.data());
+            const similarity = stringSimilarity.compareTwoStrings(user_search, jsonString);
             console.log(similarity)
             if (similarity >= 1.0) {
               array.push(doc.data());
