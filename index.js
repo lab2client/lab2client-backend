@@ -191,18 +191,30 @@ app.post("/create", async (req,res) => {
             const DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
             const PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
             const Additional_information = doc.data().research.Additional_information;
+            const research_fields = doc.data().Fields_of_research.fields;
+            const applications = doc.data().Sectors_of_application.applications;
+
+            let research_array = research_fields.toString().replace(/,/g, ' , ');
+            let application_array = applications.toString().replace(/,/g, ' , ');
+
+            console.log(research_array)
+            console.log(application_array)
+  
+
+
+            
+
         
 
             word += facility + " "+institution+ " "+building+" "+DESCRIPTION_OF_YOUR_FACILITY+
             " "+areas_of_expertise+" "+Research_services+" "+DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE+" "+
-            PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS+" "+Additional_information
+            PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS+" "+Additional_information+" "+application_array+" "+research_array
 
             if (word.toLowerCase().includes(user_search_lower)) {
               array.push(doc.data());
             }
     
            });
-           console.log(array)
           res.send(array);
         } catch (error) {
           res.send(error);

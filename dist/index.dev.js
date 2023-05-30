@@ -304,28 +304,33 @@ app.get('/word/:field', function _callee7(req, res) {
             var DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
             var PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
             var Additional_information = doc.data().research.Additional_information;
-            word += facility + " " + institution + " " + building + " " + DESCRIPTION_OF_YOUR_FACILITY + " " + areas_of_expertise + " " + Research_services + " " + DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE + " " + PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS + " " + Additional_information;
+            var research_fields = doc.data().Fields_of_research.fields;
+            var applications = doc.data().Sectors_of_application.applications;
+            var research_array = research_fields.toString().replace(/,/g, ' , ');
+            var application_array = applications.toString().replace(/,/g, ' , ');
+            console.log(research_array);
+            console.log(application_array);
+            word += facility + " " + institution + " " + building + " " + DESCRIPTION_OF_YOUR_FACILITY + " " + areas_of_expertise + " " + Research_services + " " + DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE + " " + PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS + " " + Additional_information + " " + application_array + " " + research_array;
 
             if (word.toLowerCase().includes(user_search_lower)) {
               array.push(doc.data());
             }
           });
-          console.log(array);
           res.send(array);
-          _context7.next = 17;
+          _context7.next = 16;
           break;
 
-        case 14:
-          _context7.prev = 14;
+        case 13:
+          _context7.prev = 13;
           _context7.t0 = _context7["catch"](0);
           res.send(_context7.t0);
 
-        case 17:
+        case 16:
         case "end":
           return _context7.stop();
       }
     }
-  }, null, null, [[0, 14]]);
+  }, null, null, [[0, 13]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
