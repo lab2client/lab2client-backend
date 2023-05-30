@@ -171,6 +171,7 @@ app.post("/create", async (req,res) => {
       app.get('/word/:field', async (req, res) => {
         try {
           const user_search = req.params.field;
+          user_search_lower = user_search.toLowerCase()
           console.log(user_search);
           const userRef = db.collection('users');
           const snapshot = await userRef.get();
@@ -196,7 +197,7 @@ app.post("/create", async (req,res) => {
             " "+areas_of_expertise+" "+Research_services+" "+DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE+" "+
             PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS+" "+Additional_information
 
-            if (word.toLowerCase().includes(user_search)) {
+            if (word.toLowerCase().includes(user_search_lower)) {
               array.push(doc.data());
             }
     

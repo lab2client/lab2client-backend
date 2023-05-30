@@ -284,12 +284,13 @@ app.get('/word/:field', function _callee7(req, res) {
         case 0:
           _context7.prev = 0;
           user_search = req.params.field;
+          user_search_lower = user_search.toLowerCase();
           console.log(user_search);
           userRef = db.collection('users');
-          _context7.next = 6;
+          _context7.next = 7;
           return regeneratorRuntime.awrap(userRef.get());
 
-        case 6:
+        case 7:
           snapshot = _context7.sent;
           array = [];
           snapshot.forEach(function (doc) {
@@ -305,26 +306,26 @@ app.get('/word/:field', function _callee7(req, res) {
             var Additional_information = doc.data().research.Additional_information;
             word += facility + " " + institution + " " + building + " " + DESCRIPTION_OF_YOUR_FACILITY + " " + areas_of_expertise + " " + Research_services + " " + DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE + " " + PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS + " " + Additional_information;
 
-            if (word.toLowerCase().includes(user_search)) {
+            if (word.toLowerCase().includes(user_search_lower)) {
               array.push(doc.data());
             }
           });
           console.log(array);
           res.send(array);
-          _context7.next = 16;
+          _context7.next = 17;
           break;
 
-        case 13:
-          _context7.prev = 13;
+        case 14:
+          _context7.prev = 14;
           _context7.t0 = _context7["catch"](0);
           res.send(_context7.t0);
 
-        case 16:
+        case 17:
         case "end":
           return _context7.stop();
       }
     }
-  }, null, null, [[0, 13]]);
+  }, null, null, [[0, 14]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
