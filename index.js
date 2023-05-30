@@ -5,6 +5,7 @@ var crypto = require('crypto');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
+const { workerData } = require('worker_threads');
 
 admin.initializeApp({
     credential : admin.credential.cert(credentials)
@@ -24,7 +25,7 @@ app.post("/create", async (req,res) => {
             institution_name: req.body.institution_name,
             research_facillity: req.body.research_facillity,
             street_address: req.body.street_address,
-            building_name: req.body.research_facillity,
+            building_name: req.body.building_name,
             city: req.body.city,
             province: req.body.province,
             postal_code: req.body.postal_code,
@@ -176,18 +177,37 @@ app.post("/create", async (req,res) => {
       
           let array = [];
           snapshot.forEach((doc) => {
-            const jsonString = JSON.stringify(doc.data());
-            const similarity = stringSimilarity.compareTwoStrings(user_search, jsonString);
-            console.log(similarity)
-            if (similarity >= 1.0) {
+
+
+            let word = ""
+
+            const facility = doc.data().identification.research_facillity;
+            const institution = doc.data().identification.institution_name;
+            const building = doc.data().identification.building_name;
+            const DESCRIPTION_OF_YOUR_FACILITY = doc.data().research.DESCRIPTION_OF_YOUR_FACILITY;
+            const areas_of_expertise = doc.data().research.areas_of_expertise;
+            const Research_services = doc.data().research.Research_services;
+            const DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
+            const PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
+            const Additional_information = doc.data().research.Additional_information;
+        
+
+            word += facility + " "+institution+ " "+building+" "+DESCRIPTION_OF_YOUR_FACILITY+
+            " "+areas_of_expertise+" "+Research_services+" "+DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE+" "+
+            PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS+" "+Additional_information
+
+            if (word.toLowerCase().includes(user_search)) {
               array.push(doc.data());
             }
-          });
+    
+           });
+           console.log(array)
           res.send(array);
         } catch (error) {
           res.send(error);
         }
       });
+      
 
 
 

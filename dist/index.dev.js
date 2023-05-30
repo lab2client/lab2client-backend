@@ -14,6 +14,9 @@ var admin = require("firebase-admin");
 
 var credentials = require('./key.json');
 
+var _require = require('worker_threads'),
+    workerData = _require.workerData;
+
 admin.initializeApp({
   credential: admin.credential.cert(credentials)
 });
@@ -37,7 +40,7 @@ app.post("/create", function _callee(req, res) {
               institution_name: req.body.institution_name,
               research_facillity: req.body.research_facillity,
               street_address: req.body.street_address,
-              building_name: req.body.research_facillity,
+              building_name: req.body.building_name,
               city: req.body.city,
               province: req.body.province,
               postal_code: req.body.postal_code
@@ -290,29 +293,38 @@ app.get('/word/:field', function _callee7(req, res) {
           snapshot = _context7.sent;
           array = [];
           snapshot.forEach(function (doc) {
-            var jsonString = JSON.stringify(doc.data());
-            var similarity = stringSimilarity.compareTwoStrings(user_search, jsonString);
-            console.log(similarity);
+            var word = "";
+            var facility = doc.data().identification.research_facillity;
+            var institution = doc.data().identification.institution_name;
+            var building = doc.data().identification.building_name;
+            var DESCRIPTION_OF_YOUR_FACILITY = doc.data().research.DESCRIPTION_OF_YOUR_FACILITY;
+            var areas_of_expertise = doc.data().research.areas_of_expertise;
+            var Research_services = doc.data().research.Research_services;
+            var DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
+            var PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
+            var Additional_information = doc.data().research.Additional_information;
+            word += facility + " " + institution + " " + building + " " + DESCRIPTION_OF_YOUR_FACILITY + " " + areas_of_expertise + " " + Research_services + " " + DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE + " " + PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS + " " + Additional_information;
 
-            if (similarity >= 1.0) {
+            if (word.toLowerCase().includes(user_search)) {
               array.push(doc.data());
             }
           });
+          console.log(array);
           res.send(array);
-          _context7.next = 15;
+          _context7.next = 16;
           break;
 
-        case 12:
-          _context7.prev = 12;
+        case 13:
+          _context7.prev = 13;
           _context7.t0 = _context7["catch"](0);
           res.send(_context7.t0);
 
-        case 15:
+        case 16:
         case "end":
           return _context7.stop();
       }
     }
-  }, null, null, [[0, 12]]);
+  }, null, null, [[0, 13]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
