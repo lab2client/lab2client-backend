@@ -8,6 +8,8 @@ var cors = require('cors');
 
 var crypto = require('crypto');
 
+var stripe = require('./stripe');
+
 var stringSimilarity = require("string-similarity");
 
 var admin = require("firebase-admin");
@@ -20,7 +22,9 @@ var _require = require('worker_threads'),
 admin.initializeApp({
   credential: admin.credential.cert(credentials)
 });
-app.use(cors());
+app.use(cors({
+  origin: 'https://lab2client.vercel.app'
+}));
 app.use(express.json());
 app.use(express.urlencoded({
   extended: true
@@ -308,8 +312,6 @@ app.get('/word/:field', function _callee7(req, res) {
             var applications = doc.data().Sectors_of_application.applications;
             var research_array = research_fields.toString().replace(/,/g, ' , ');
             var application_array = applications.toString().replace(/,/g, ' , ');
-            console.log(research_array);
-            console.log(application_array);
             word += facility + " " + institution + " " + building + " " + DESCRIPTION_OF_YOUR_FACILITY + " " + areas_of_expertise + " " + Research_services + " " + DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE + " " + PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS + " " + Additional_information + " " + application_array + " " + research_array;
 
             if (word.toLowerCase().includes(user_search_lower)) {
@@ -331,6 +333,48 @@ app.get('/word/:field', function _callee7(req, res) {
       }
     }
   }, null, null, [[0, 13]]);
+});
+app.post('/payment', function _callee8(req, res) {
+  var _req$body, amount, currency, source, paymentIntent;
+
+  return regeneratorRuntime.async(function _callee8$(_context8) {
+    while (1) {
+      switch (_context8.prev = _context8.next) {
+        case 0:
+          _req$body = req.body, amount = _req$body.amount, currency = _req$body.currency, source = _req$body.source;
+          _context8.prev = 1;
+          _context8.next = 4;
+          return regeneratorRuntime.awrap(stripe.paymentIntents.create({
+            amount: amount,
+            currency: currency,
+            payment_method_types: ['card'],
+            payment_method: source,
+            confirm: true
+          }));
+
+        case 4:
+          paymentIntent = _context8.sent;
+          res.status(200).json({
+            success: true,
+            paymentIntent: paymentIntent
+          });
+          _context8.next = 11;
+          break;
+
+        case 8:
+          _context8.prev = 8;
+          _context8.t0 = _context8["catch"](1);
+          res.status(500).json({
+            success: false,
+            error: _context8.t0.message
+          });
+
+        case 11:
+        case "end":
+          return _context8.stop();
+      }
+    }
+  }, null, null, [[1, 8]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");

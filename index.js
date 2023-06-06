@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 var cors = require('cors')
 var crypto = require('crypto');
+const stripe = require('./stripe');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
@@ -11,7 +12,9 @@ admin.initializeApp({
     credential : admin.credential.cert(credentials)
 });
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://lab2client.vercel.app'
+}));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 const db  = admin.firestore();
@@ -197,14 +200,7 @@ app.post("/create", async (req,res) => {
             let research_array = research_fields.toString().replace(/,/g, ' , ');
             let application_array = applications.toString().replace(/,/g, ' , ');
 
-            console.log(research_array)
-            console.log(application_array)
-  
-
-
-            
-
-        
+      
 
             word += facility + " "+institution+ " "+building+" "+DESCRIPTION_OF_YOUR_FACILITY+
             " "+areas_of_expertise+" "+Research_services+" "+DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE+" "+
@@ -218,6 +214,24 @@ app.post("/create", async (req,res) => {
           res.send(array);
         } catch (error) {
           res.send(error);
+        }
+      });
+
+      app.post('/payment', async (req, res) => {
+        const { amount, currency, source } = req.body;
+      
+        try {
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency,
+            payment_method_types: ['card'],
+            payment_method: source,
+            confirm: true,
+          });
+      
+          res.status(200).json({ success: true, paymentIntent });
+        } catch (error) {
+          res.status(500).json({ success: false, error: error.message });
         }
       });
       
