@@ -13,7 +13,7 @@ admin.initializeApp({
 });
 
 app.use(cors({
-  origin: 'https://lab2client.vercel.app/'
+//   origin: 'https://lab2client.vercel.app/'
 }));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
