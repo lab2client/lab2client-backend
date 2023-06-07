@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 var cors = require('cors')
 var crypto = require('crypto');
-const stripe = require('./stripe');
+const stripe = require('stripe');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
@@ -12,7 +12,10 @@ admin.initializeApp({
     credential : admin.credential.cert(credentials)
 });
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://lab2client.vercel.app'
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 const db  = admin.firestore();

@@ -8,7 +8,7 @@ var cors = require('cors');
 
 var crypto = require('crypto');
 
-var stripe = require('./stripe');
+var stripe = require('stripe');
 
 var stringSimilarity = require("string-similarity");
 
@@ -22,7 +22,9 @@ var _require = require('worker_threads'),
 admin.initializeApp({
   credential: admin.credential.cert(credentials)
 });
-app.use(cors());
+app.use(cors({
+  origin: 'https://lab2client.vercel.app'
+}));
 app.use(express.json());
 app.use(express.urlencoded({
   extended: true
