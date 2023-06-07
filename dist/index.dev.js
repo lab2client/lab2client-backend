@@ -23,7 +23,7 @@ admin.initializeApp({
   credential: admin.credential.cert(credentials)
 });
 app.use(cors({
-  origin: 'https://lab2client.vercel.app'
+  origin: 'https://lab2client.vercel.app/'
 }));
 app.use(express.json());
 app.use(express.urlencoded({
