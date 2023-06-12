@@ -22,10 +22,14 @@ var stringSimilarity = require("string-similarity");
 
 var admin = require("firebase-admin");
 
-var credentials = require('./key.json');
+var credentials = require('./key.json'); // import { getAuth, signInWithCustomToken } from "firebase/auth";
+
 
 var _require = require('worker_threads'),
     workerData = _require.workerData;
+
+var _require2 = require('fs'),
+    copyFileSync = _require2.copyFileSync;
 
 admin.initializeApp({
   credential: admin.credential.cert(credentials)
@@ -46,14 +50,15 @@ var db = admin.firestore(); // This API endpoint (POST /create) is used to creat
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 
 app.post("/create", function _callee(req, res) {
-  var labjson, id;
+  var uid, labjson, id;
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          console.log(req.body);
+          uid = req.body.user_unique_id;
           labjson = {
+            user_unique_id: req.body.user_unique_id,
             identification: {
               email_identification: req.body.email_identification,
               institution_name: req.body.institution_name,
@@ -103,33 +108,29 @@ app.post("/create", function _callee(req, res) {
               Social_media_platforms: req.body.Social_media_platforms,
               LOGOS: req.body.LOGOS
             }
-          }; // crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex'): This line uses the crypto module to create a SHA-256 hash of the stringified labjson object. 
-          // The resulting hash is converted to a hexadecimal representation.
-          //  This ID is used to uniquely identify the document in the Firestore collection.
-
-          id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-          console.log(id); // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+          }; // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
           // The labjson object is saved as the document data.
 
-          _context.next = 7;
+          id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
+          _context.next = 6;
           return regeneratorRuntime.awrap(db.collection('users').doc(id).set(labjson));
 
-        case 7:
+        case 6:
           res.send(response);
-          _context.next = 13;
+          _context.next = 12;
           break;
 
-        case 10:
-          _context.prev = 10;
+        case 9:
+          _context.prev = 9;
           _context.t0 = _context["catch"](0);
           res.send(_context.t0);
 
-        case 13:
+        case 12:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 10]]);
+  }, null, null, [[0, 9]]);
 }); // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
 // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
 // const response = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. It returns a response containing the query snapshot.
@@ -181,34 +182,45 @@ app.get('/getall', function _callee2(req, res) {
 // catch(error) { res.send(error); }: If an error occurs during the retrieval process, the catch block is executed. The error message is sent as the response.
 
 app.get('/getspecific/:id', function _callee3(req, res) {
-  var userRef, _response2;
-
+  var docId, docRef, doc;
   return regeneratorRuntime.async(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
-          userRef = db.collection("users").doc(req.params.id);
-          _context3.next = 4;
-          return regeneratorRuntime.awrap(userRef.get());
+          docId = req.params.id;
+          docRef = db.collection('users').doc(docId);
+          _context3.next = 5;
+          return regeneratorRuntime.awrap(docRef.get());
 
-        case 4:
-          _response2 = _context3.sent;
-          res.send(_response2.data());
-          _context3.next = 11;
-          break;
+        case 5:
+          doc = _context3.sent;
+
+          if (doc.exists) {
+            _context3.next = 8;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(404).send('Document not found'));
 
         case 8:
-          _context3.prev = 8;
-          _context3.t0 = _context3["catch"](0);
-          res.send(_context3.t0);
+          // Return the document data as the API response
+          res.json(doc.data());
+          _context3.next = 15;
+          break;
 
         case 11:
+          _context3.prev = 11;
+          _context3.t0 = _context3["catch"](0);
+          console.error('Error retrieving document:', _context3.t0);
+          res.status(500).send('Internal Server Error');
+
+        case 15:
         case "end":
           return _context3.stop();
       }
     }
-  }, null, null, [[0, 8]]);
+  }, null, null, [[0, 11]]);
 }); // The updated code snippet includes a new route handler for the DELETE request to delete a specific document from the "users" collection in Firestore based on the provided ID.
 //  Here's an explanation of the code:
 // app.delete('/delete/:id', async (req, res) => { ... }): This code defines a route handler for the DELETE request to the '/delete/:id' endpoint.
@@ -220,15 +232,15 @@ app.get('/getspecific/:id', function _callee3(req, res) {
 // catch(error) { res.send(error); }: If an error occurs during the deletion process, the catch block is executed. The error message is sent as the response.
 
 app["delete"]('/delete/:id', function _callee4(req, res) {
-  var _response3;
+  var _response2;
 
   return regeneratorRuntime.async(function _callee4$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
           try {
-            _response3 = db.collection("users").doc(req.params.id)["delete"]();
-            res.send(_response3);
+            _response2 = db.collection("users").doc(req.params.id)["delete"]();
+            res.send(_response2);
           } catch (error) {
             res.send(error);
           }
@@ -258,7 +270,7 @@ app["delete"]('/delete/:id', function _callee4(req, res) {
 // res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
 // catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
 
-app.get('/search/:field', function _callee5(req, res) {
+app.get('/search_city/:field', function _callee5(req, res) {
   var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee5$(_context5) {
     while (1) {
@@ -335,7 +347,6 @@ app.get('/email/:field', function _callee6(req, res) {
           snapshot = _context6.sent;
           array = [];
           snapshot.forEach(function (doc) {
-            console.log(doc.data().identification.city);
             var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.email_identification);
             console.log(similarity);
 
@@ -376,7 +387,7 @@ app.get('/email/:field', function _callee6(req, res) {
 // res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
 // catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
 
-app.get('/word/:field', function _callee7(req, res) {
+app.get('/search_word/:field', function _callee7(req, res) {
   var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee7$(_context7) {
     while (1) {
@@ -472,6 +483,107 @@ app.post('/payment', function _callee8(req, res) {
       }
     }
   }, null, null, [[1, 8]]);
+});
+app.post("/signup", function _callee9(req, res) {
+  var user, userResponse;
+  return regeneratorRuntime.async(function _callee9$(_context9) {
+    while (1) {
+      switch (_context9.prev = _context9.next) {
+        case 0:
+          _context9.prev = 0;
+          user = {
+            email: req.body.email,
+            password: req.body.password
+          };
+          _context9.next = 4;
+          return regeneratorRuntime.awrap(admin.auth().createUser({
+            email: user.email,
+            password: user.password,
+            emailVerified: false,
+            disabled: false
+          }));
+
+        case 4:
+          userResponse = _context9.sent;
+          res.json(userResponse);
+          _context9.next = 11;
+          break;
+
+        case 8:
+          _context9.prev = 8;
+          _context9.t0 = _context9["catch"](0);
+          res.send(_context9.t0);
+
+        case 11:
+        case "end":
+          return _context9.stop();
+      }
+    }
+  }, null, null, [[0, 8]]);
+});
+app.post("/login", function _callee10(req, res) {
+  var user, userResponse, uid;
+  return regeneratorRuntime.async(function _callee10$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          _context10.prev = 0;
+          user = {
+            email: req.body.email,
+            password: req.body.password
+          }; // Authenticate the user with email and password
+
+          _context10.next = 4;
+          return regeneratorRuntime.awrap(admin.auth().signInWithEmailAndPassword(user.email, user.password));
+
+        case 4:
+          userResponse = _context10.sent;
+          // Access the UID of the authenticated user
+          uid = userResponse.user.uid; // Use the UID as needed
+          // For example, you can use it to associate data with the signed-in user in Firestore
+
+          console.log(uid);
+          res.send("The user has been authenticated!");
+          _context10.next = 13;
+          break;
+
+        case 10:
+          _context10.prev = 10;
+          _context10.t0 = _context10["catch"](0);
+          res.send(_context10.t0);
+
+        case 13:
+        case "end":
+          return _context10.stop();
+      }
+    }
+  }, null, null, [[0, 10]]);
+});
+app.post("/logout", function _callee11(req, res) {
+  return regeneratorRuntime.async(function _callee11$(_context11) {
+    while (1) {
+      switch (_context11.prev = _context11.next) {
+        case 0:
+          _context11.prev = 0;
+          _context11.next = 3;
+          return regeneratorRuntime.awrap(admin.auth().signOut());
+
+        case 3:
+          res.send("Logged out successfully!");
+          _context11.next = 9;
+          break;
+
+        case 6:
+          _context11.prev = 6;
+          _context11.t0 = _context11["catch"](0);
+          res.send(_context11.t0);
+
+        case 9:
+        case "end":
+          return _context11.stop();
+      }
+    }
+  }, null, null, [[0, 6]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");

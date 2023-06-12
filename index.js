@@ -21,7 +21,9 @@ const stripe = require('stripe');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
+// import { getAuth, signInWithCustomToken } from "firebase/auth";
 const { workerData } = require('worker_threads');
+const { copyFileSync } = require('fs');
 
 admin.initializeApp({
     credential : admin.credential.cert(credentials)
@@ -45,9 +47,10 @@ const db  = admin.firestore();
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 app.post("/create", async (req,res) => {
     try {
-        console.log(req.body)
+      const uid =  req.body.user_unique_id;
         const labjson = {
-            identification : {
+          user_unique_id : req.body.user_unique_id,
+            identification :{
             email_identification: req.body.email_identification,
             institution_name: req.body.institution_name,
             research_facillity: req.body.research_facillity,
@@ -98,13 +101,9 @@ app.post("/create", async (req,res) => {
         
         }
     }
-// crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex'): This line uses the crypto module to create a SHA-256 hash of the stringified labjson object. 
-// The resulting hash is converted to a hexadecimal representation.
-//  This ID is used to uniquely identify the document in the Firestore collection.
-    const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-    console.log(id)
     // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
     // The labjson object is saved as the document data.
+    const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
     await db.collection('users').doc(id).set(labjson);
         res.send(response);
     }
@@ -156,15 +155,22 @@ app.post("/create", async (req,res) => {
 
     app.get('/getspecific/:id', async (req,res) => {
 
-        try {
-            const userRef = db.collection("users").doc(req.params.id);
-            const response = await userRef.get();
-            res.send(response.data());
-
+      try {
+        const docId = req.params.id;
+        const docRef = db.collection('users').doc(docId);
+        const doc = await docRef.get();
+    
+        if (!doc.exists) {
+          return res.status(404).send('Document not found');
         }
-        catch(error){
-            res.send(error)
-        }
+    
+        // Return the document data as the API response
+        res.json(doc.data());
+      } catch (error) {
+        console.error('Error retrieving document:', error);
+        res.status(500).send('Internal Server Error');
+      }
+        
     });
     // The updated code snippet includes a new route handler for the DELETE request to delete a specific document from the "users" collection in Firestore based on the provided ID.
     //  Here's an explanation of the code:
@@ -220,7 +226,7 @@ app.post("/create", async (req,res) => {
     // res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
     
     // catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
-    app.get('/search/:field', async (req, res) => {
+    app.get('/search_city/:field', async (req, res) => {
         try {
           const user_search = req.params.field;
           console.log(user_search);
@@ -283,7 +289,6 @@ app.post("/create", async (req,res) => {
       
           let array = [];
           snapshot.forEach((doc) => {
-            console.log(doc.data().identification.city)
             const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.email_identification);
             console.log(similarity)
             if (similarity >= 1.0) {
@@ -324,7 +329,7 @@ app.post("/create", async (req,res) => {
       // res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
       
       // catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
-      app.get('/word/:field', async (req, res) => {
+      app.get('/search_word/:field', async (req, res) => {
         try {
           const user_search = req.params.field;
           user_search_lower = user_search.toLowerCase()
@@ -346,7 +351,7 @@ app.post("/create", async (req,res) => {
             const Research_services = doc.data().research.Research_services;
             const DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
             const PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
-            const Additional_information = doc.data().research.Additional_information;
+            const Additional_information  = doc.data().research.Additional_information;
             const research_fields = doc.data().Fields_of_research.fields;
             const applications = doc.data().Sectors_of_application.applications;
 
@@ -389,6 +394,66 @@ app.post("/create", async (req,res) => {
           res.status(500).json({ success: false, error: error.message });
         }
       });
+
+      app.post("/signup", async (req, res) => {
+        try {
+          const user = {
+            email: req.body.email,
+            password: req.body.password
+          };
+      
+          const userResponse = await admin.auth().createUser({
+            email: user.email,
+            password: user.password,
+            emailVerified: false,
+            disabled: false
+          });
+      
+          res.json(userResponse);
+        } catch (error) {
+          res.send(error);
+        }
+      });
+      
+      app.post("/login", async (req, res) => {
+        try {
+          const user = {
+            email: req.body.email,
+            password: req.body.password
+          };
+      
+          // Authenticate the user with email and password
+          const userResponse = await admin.auth().signInWithEmailAndPassword(
+            user.email,
+            user.password
+          );
+      
+          // Access the UID of the authenticated user
+          const uid = userResponse.user.uid;
+      
+          // Use the UID as needed
+          // For example, you can use it to associate data with the signed-in user in Firestore
+          console.log(uid);
+          res.send("The user has been authenticated!");
+      
+        } catch (error) {
+          res.send(error);
+        }
+      });
+      
+      
+
+      app.post("/logout", async (req, res) => {
+        try {
+
+          await admin.auth().signOut();
+      
+          res.send("Logged out successfully!");
+        } catch (error) {
+          res.send(error);
+        }
+      });
+      
       
 
 
