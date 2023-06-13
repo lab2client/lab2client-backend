@@ -21,9 +21,8 @@ const stripe = require('stripe');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
-// import { getAuth, signInWithCustomToken } from "firebase/auth";
-const { workerData } = require('worker_threads');
-const { copyFileSync } = require('fs');
+
+
 
 admin.initializeApp({
     credential : admin.credential.cert(credentials)
@@ -283,7 +282,6 @@ app.post("/create", async (req,res) => {
       app.get('/email/:field', async (req, res) => {
         try {
           const user_search = req.params.field;
-          console.log(user_search);
           const userRef = db.collection('users');
           const snapshot = await userRef.get();
       
@@ -375,6 +373,26 @@ app.post("/create", async (req,res) => {
         }
       });
 
+      app.get('/dashboard/:field', async (req, res) => {
+        try {
+          const user_search = req.params.field;
+          const userRef = db.collection('users');
+          const snapshot = await userRef.get();
+      
+          let array = [];
+          snapshot.forEach((doc) => {
+            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().user_unique_id);
+            console.log(similarity)
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+        } catch (error) {
+          res.send(error);
+        }
+      });
+
       // setting up the stripe payment for the client
 
       app.post('/payment', async (req, res) => {
@@ -416,30 +434,25 @@ app.post("/create", async (req,res) => {
       });
       
       app.post("/login", async (req, res) => {
-        try {
-          const user = {
-            email: req.body.email,
-            password: req.body.password
-          };
-      
+       
+            const email = req.body.email 
+            const password = req.body.password
+        
+            try {
           // Authenticate the user with email and password
-          const userResponse = await admin.auth().signInWithEmailAndPassword(
-            user.email,
-            user.password
-          );
-      
-          // Access the UID of the authenticated user
-          const uid = userResponse.user.uid;
+          const {user} = await admin.auth().signInWithEmailAndPassword(email,password);
+          const customToken = await admin.auth().createCustomToken(user.uid);
+    
       
           // Use the UID as needed
           // For example, you can use it to associate data with the signed-in user in Firestore
-          console.log(uid);
-          res.send("The user has been authenticated!");
+          res.status(200).send(JSON.stringify(customToken))
       
         } catch (error) {
-          res.send(error);
+          return res.status(404).send(error);
         }
       });
+      
       
       
 

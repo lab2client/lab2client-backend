@@ -22,14 +22,7 @@ var stringSimilarity = require("string-similarity");
 
 var admin = require("firebase-admin");
 
-var credentials = require('./key.json'); // import { getAuth, signInWithCustomToken } from "firebase/auth";
-
-
-var _require = require('worker_threads'),
-    workerData = _require.workerData;
-
-var _require2 = require('fs'),
-    copyFileSync = _require2.copyFileSync;
+var credentials = require('./key.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(credentials)
@@ -338,12 +331,11 @@ app.get('/email/:field', function _callee6(req, res) {
         case 0:
           _context6.prev = 0;
           user_search = req.params.field;
-          console.log(user_search);
           userRef = db.collection('users');
-          _context6.next = 6;
+          _context6.next = 5;
           return regeneratorRuntime.awrap(userRef.get());
 
-        case 6:
+        case 5:
           snapshot = _context6.sent;
           array = [];
           snapshot.forEach(function (doc) {
@@ -355,20 +347,20 @@ app.get('/email/:field', function _callee6(req, res) {
             }
           });
           res.send(array);
-          _context6.next = 15;
+          _context6.next = 14;
           break;
 
-        case 12:
-          _context6.prev = 12;
+        case 11:
+          _context6.prev = 11;
           _context6.t0 = _context6["catch"](0);
           res.send(_context6.t0);
 
-        case 15:
+        case 14:
         case "end":
           return _context6.stop();
       }
     }
-  }, null, null, [[0, 12]]);
+  }, null, null, [[0, 11]]);
 }); // The updated code snippet includes a new route handler for the GET request to search for documents in the "users" collection in Firestore based on a provided search word.
 //  Here's an explanation of the code:
 // app.get('/word/:field', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/word/:field' endpoint.
@@ -440,18 +432,57 @@ app.get('/search_word/:field', function _callee7(req, res) {
       }
     }
   }, null, null, [[0, 13]]);
-}); // setting up the stripe payment for the client
-
-app.post('/payment', function _callee8(req, res) {
-  var _req$body, amount, currency, source, paymentIntent;
-
+});
+app.get('/dashboard/:field', function _callee8(req, res) {
+  var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee8$(_context8) {
     while (1) {
       switch (_context8.prev = _context8.next) {
         case 0:
+          _context8.prev = 0;
+          user_search = req.params.field;
+          userRef = db.collection('users');
+          _context8.next = 5;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 5:
+          snapshot = _context8.sent;
+          array = [];
+          snapshot.forEach(function (doc) {
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().user_unique_id);
+            console.log(similarity);
+
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          _context8.next = 14;
+          break;
+
+        case 11:
+          _context8.prev = 11;
+          _context8.t0 = _context8["catch"](0);
+          res.send(_context8.t0);
+
+        case 14:
+        case "end":
+          return _context8.stop();
+      }
+    }
+  }, null, null, [[0, 11]]);
+}); // setting up the stripe payment for the client
+
+app.post('/payment', function _callee9(req, res) {
+  var _req$body, amount, currency, source, paymentIntent;
+
+  return regeneratorRuntime.async(function _callee9$(_context9) {
+    while (1) {
+      switch (_context9.prev = _context9.next) {
+        case 0:
           _req$body = req.body, amount = _req$body.amount, currency = _req$body.currency, source = _req$body.source;
-          _context8.prev = 1;
-          _context8.next = 4;
+          _context9.prev = 1;
+          _context9.next = 4;
           return regeneratorRuntime.awrap(stripe.paymentIntents.create({
             amount: amount,
             currency: currency,
@@ -461,68 +492,31 @@ app.post('/payment', function _callee8(req, res) {
           }));
 
         case 4:
-          paymentIntent = _context8.sent;
+          paymentIntent = _context9.sent;
           res.status(200).json({
             success: true,
             paymentIntent: paymentIntent
           });
-          _context8.next = 11;
-          break;
-
-        case 8:
-          _context8.prev = 8;
-          _context8.t0 = _context8["catch"](1);
-          res.status(500).json({
-            success: false,
-            error: _context8.t0.message
-          });
-
-        case 11:
-        case "end":
-          return _context8.stop();
-      }
-    }
-  }, null, null, [[1, 8]]);
-});
-app.post("/signup", function _callee9(req, res) {
-  var user, userResponse;
-  return regeneratorRuntime.async(function _callee9$(_context9) {
-    while (1) {
-      switch (_context9.prev = _context9.next) {
-        case 0:
-          _context9.prev = 0;
-          user = {
-            email: req.body.email,
-            password: req.body.password
-          };
-          _context9.next = 4;
-          return regeneratorRuntime.awrap(admin.auth().createUser({
-            email: user.email,
-            password: user.password,
-            emailVerified: false,
-            disabled: false
-          }));
-
-        case 4:
-          userResponse = _context9.sent;
-          res.json(userResponse);
           _context9.next = 11;
           break;
 
         case 8:
           _context9.prev = 8;
-          _context9.t0 = _context9["catch"](0);
-          res.send(_context9.t0);
+          _context9.t0 = _context9["catch"](1);
+          res.status(500).json({
+            success: false,
+            error: _context9.t0.message
+          });
 
         case 11:
         case "end":
           return _context9.stop();
       }
     }
-  }, null, null, [[0, 8]]);
+  }, null, null, [[1, 8]]);
 });
-app.post("/login", function _callee10(req, res) {
-  var user, userResponse, uid;
+app.post("/signup", function _callee10(req, res) {
+  var user, userResponse;
   return regeneratorRuntime.async(function _callee10$(_context10) {
     while (1) {
       switch (_context10.prev = _context10.next) {
@@ -531,56 +525,94 @@ app.post("/login", function _callee10(req, res) {
           user = {
             email: req.body.email,
             password: req.body.password
-          }; // Authenticate the user with email and password
-
+          };
           _context10.next = 4;
-          return regeneratorRuntime.awrap(admin.auth().signInWithEmailAndPassword(user.email, user.password));
+          return regeneratorRuntime.awrap(admin.auth().createUser({
+            email: user.email,
+            password: user.password,
+            emailVerified: false,
+            disabled: false
+          }));
 
         case 4:
           userResponse = _context10.sent;
-          // Access the UID of the authenticated user
-          uid = userResponse.user.uid; // Use the UID as needed
-          // For example, you can use it to associate data with the signed-in user in Firestore
-
-          console.log(uid);
-          res.send("The user has been authenticated!");
-          _context10.next = 13;
+          res.json(userResponse);
+          _context10.next = 11;
           break;
 
-        case 10:
-          _context10.prev = 10;
+        case 8:
+          _context10.prev = 8;
           _context10.t0 = _context10["catch"](0);
           res.send(_context10.t0);
 
-        case 13:
+        case 11:
         case "end":
           return _context10.stop();
       }
     }
-  }, null, null, [[0, 10]]);
+  }, null, null, [[0, 8]]);
 });
-app.post("/logout", function _callee11(req, res) {
+app.post("/login", function _callee11(req, res) {
+  var email, password, _ref, user, customToken;
+
   return regeneratorRuntime.async(function _callee11$(_context11) {
     while (1) {
       switch (_context11.prev = _context11.next) {
         case 0:
-          _context11.prev = 0;
-          _context11.next = 3;
+          email = req.body.email;
+          password = req.body.password;
+          _context11.prev = 2;
+          _context11.next = 5;
+          return regeneratorRuntime.awrap(admin.auth().signInWithEmailAndPassword(email, password));
+
+        case 5:
+          _ref = _context11.sent;
+          user = _ref.user;
+          _context11.next = 9;
+          return regeneratorRuntime.awrap(admin.auth().createCustomToken(user.uid));
+
+        case 9:
+          customToken = _context11.sent;
+          // Use the UID as needed
+          // For example, you can use it to associate data with the signed-in user in Firestore
+          res.status(200).send(JSON.stringify(customToken));
+          _context11.next = 16;
+          break;
+
+        case 13:
+          _context11.prev = 13;
+          _context11.t0 = _context11["catch"](2);
+          return _context11.abrupt("return", res.status(404).send(_context11.t0));
+
+        case 16:
+        case "end":
+          return _context11.stop();
+      }
+    }
+  }, null, null, [[2, 13]]);
+});
+app.post("/logout", function _callee12(req, res) {
+  return regeneratorRuntime.async(function _callee12$(_context12) {
+    while (1) {
+      switch (_context12.prev = _context12.next) {
+        case 0:
+          _context12.prev = 0;
+          _context12.next = 3;
           return regeneratorRuntime.awrap(admin.auth().signOut());
 
         case 3:
           res.send("Logged out successfully!");
-          _context11.next = 9;
+          _context12.next = 9;
           break;
 
         case 6:
-          _context11.prev = 6;
-          _context11.t0 = _context11["catch"](0);
-          res.send(_context11.t0);
+          _context12.prev = 6;
+          _context12.t0 = _context12["catch"](0);
+          res.send(_context12.t0);
 
         case 9:
         case "end":
-          return _context11.stop();
+          return _context12.stop();
       }
     }
   }, null, null, [[0, 6]]);
