@@ -387,13 +387,22 @@ app.get('/search_word/:field', function _callee7(req, res) {
         case 0:
           _context7.prev = 0;
           user_search = req.params.field;
+
+          if (!(user_search.length == 1)) {
+            _context7.next = 4;
+            break;
+          }
+
+          throw error;
+
+        case 4:
           user_search_lower = user_search.toLowerCase();
           console.log(user_search);
           userRef = db.collection('users');
-          _context7.next = 7;
+          _context7.next = 9;
           return regeneratorRuntime.awrap(userRef.get());
 
-        case 7:
+        case 9:
           snapshot = _context7.sent;
           array = [];
           snapshot.forEach(function (doc) {
@@ -418,20 +427,20 @@ app.get('/search_word/:field', function _callee7(req, res) {
             }
           });
           res.send(array);
-          _context7.next = 16;
+          _context7.next = 18;
           break;
 
-        case 13:
-          _context7.prev = 13;
+        case 15:
+          _context7.prev = 15;
           _context7.t0 = _context7["catch"](0);
           res.send(_context7.t0);
 
-        case 16:
+        case 18:
         case "end":
           return _context7.stop();
       }
     }
-  }, null, null, [[0, 13]]);
+  }, null, null, [[0, 15]]);
 });
 app.get('/dashboard/:field', function _callee8(req, res) {
   var user_search, userRef, snapshot, array;
@@ -515,7 +524,7 @@ app.post('/payment', function _callee9(req, res) {
     }
   }, null, null, [[1, 8]]);
 });
-app.post("/signup", function _callee10(req, res) {
+app.post("/facility/signup", function _callee10(req, res) {
   var user, userResponse;
   return regeneratorRuntime.async(function _callee10$(_context10) {
     while (1) {
@@ -551,71 +560,6 @@ app.post("/signup", function _callee10(req, res) {
       }
     }
   }, null, null, [[0, 8]]);
-});
-app.post("/login", function _callee11(req, res) {
-  var email, password, _ref, user, customToken;
-
-  return regeneratorRuntime.async(function _callee11$(_context11) {
-    while (1) {
-      switch (_context11.prev = _context11.next) {
-        case 0:
-          email = req.body.email;
-          password = req.body.password;
-          _context11.prev = 2;
-          _context11.next = 5;
-          return regeneratorRuntime.awrap(admin.auth().signInWithEmailAndPassword(email, password));
-
-        case 5:
-          _ref = _context11.sent;
-          user = _ref.user;
-          _context11.next = 9;
-          return regeneratorRuntime.awrap(admin.auth().createCustomToken(user.uid));
-
-        case 9:
-          customToken = _context11.sent;
-          // Use the UID as needed
-          // For example, you can use it to associate data with the signed-in user in Firestore
-          res.status(200).send(JSON.stringify(customToken));
-          _context11.next = 16;
-          break;
-
-        case 13:
-          _context11.prev = 13;
-          _context11.t0 = _context11["catch"](2);
-          return _context11.abrupt("return", res.status(404).send(_context11.t0));
-
-        case 16:
-        case "end":
-          return _context11.stop();
-      }
-    }
-  }, null, null, [[2, 13]]);
-});
-app.post("/logout", function _callee12(req, res) {
-  return regeneratorRuntime.async(function _callee12$(_context12) {
-    while (1) {
-      switch (_context12.prev = _context12.next) {
-        case 0:
-          _context12.prev = 0;
-          _context12.next = 3;
-          return regeneratorRuntime.awrap(admin.auth().signOut());
-
-        case 3:
-          res.send("Logged out successfully!");
-          _context12.next = 9;
-          break;
-
-        case 6:
-          _context12.prev = 6;
-          _context12.t0 = _context12["catch"](0);
-          res.send(_context12.t0);
-
-        case 9:
-        case "end":
-          return _context12.stop();
-      }
-    }
-  }, null, null, [[0, 6]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");

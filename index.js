@@ -330,6 +330,10 @@ app.post("/create", async (req,res) => {
       app.get('/search_word/:field', async (req, res) => {
         try {
           const user_search = req.params.field;
+
+          if(user_search.length == 1){
+            throw error
+          }
           user_search_lower = user_search.toLowerCase()
           console.log(user_search);
           const userRef = db.collection('users');
@@ -413,7 +417,7 @@ app.post("/create", async (req,res) => {
         }
       });
 
-      app.post("/signup", async (req, res) => {
+      app.post("/facility/signup", async (req, res) => {
         try {
           const user = {
             email: req.body.email,
@@ -433,43 +437,7 @@ app.post("/create", async (req,res) => {
         }
       });
       
-      app.post("/login", async (req, res) => {
-       
-            const email = req.body.email 
-            const password = req.body.password
-        
-            try {
-          // Authenticate the user with email and password
-          const {user} = await admin.auth().signInWithEmailAndPassword(email,password);
-          const customToken = await admin.auth().createCustomToken(user.uid);
     
-      
-          // Use the UID as needed
-          // For example, you can use it to associate data with the signed-in user in Firestore
-          res.status(200).send(JSON.stringify(customToken))
-      
-        } catch (error) {
-          return res.status(404).send(error);
-        }
-      });
-      
-      
-      
-
-      app.post("/logout", async (req, res) => {
-        try {
-
-          await admin.auth().signOut();
-      
-          res.send("Logged out successfully!");
-        } catch (error) {
-          res.send(error);
-        }
-      });
-      
-      
-
-
 
 app.get("/home", (req,res) => {
 
