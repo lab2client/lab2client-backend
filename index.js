@@ -420,6 +420,8 @@ app.post("/create", async (req,res) => {
       app.post("/facility/signup", async (req, res) => {
         try {
           const user = {
+            first_name: req.body.first_name,
+            last_name:  req.body.last_name,
             email: req.body.email,
             password: req.body.password
           };
@@ -430,13 +432,77 @@ app.post("/create", async (req,res) => {
             emailVerified: false,
             disabled: false
           });
+
+          console.log(userResponse.displayName)
       
           res.json(userResponse);
         } catch (error) {
           res.send(error);
         }
       });
-      
+    
+      app.post("/create/order", async (req,res) => {
+        try {
+          const labjson = {
+
+            ucid_sent: req.body.ucid_sent,
+            ucid_recieved: req.body.ucid_recieved,
+            information: req.body.information,
+            cost: req.body.cost,
+            date: req.body.date,
+            status: req.body.status
+            
+        }
+        // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+        // The labjson object is saved as the document data.
+        const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
+        await db.collection('orders').doc(id).set(labjson);
+            res.send(response);
+        }
+        catch(error) {
+            res.send(error)
+        }
+        });
+
+        app.get('/orders/sent/:field', async (req, res) => {
+          try {
+            const user_search = req.params.field;
+            const userRef = db.collection('orders');
+            const snapshot = await userRef.get();
+        
+            let array = [];
+            snapshot.forEach((doc) => {
+              const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
+              console.log(similarity)
+              if (similarity >= 1.0) {
+                array.push(doc.data());
+              }
+            });
+            res.send(array);
+          } catch (error) {
+            res.send(error);
+          }
+        });
+
+        app.get('/orders/received/:field', async (req, res) => {
+          try {
+            const user_search = req.params.field;
+            const userRef = db.collection('orders');
+            const snapshot = await userRef.get();
+        
+            let array = [];
+            snapshot.forEach((doc) => {
+              const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_recieved);
+              console.log(similarity)
+              if (similarity >= 1.0) {
+                array.push(doc.data());
+              }
+            });
+            res.send(array);
+          } catch (error) {
+            res.send(error);
+          }
+        });
     
 
 app.get("/home", (req,res) => {

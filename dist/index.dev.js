@@ -532,6 +532,8 @@ app.post("/facility/signup", function _callee10(req, res) {
         case 0:
           _context10.prev = 0;
           user = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
             email: req.body.email,
             password: req.body.password
           };
@@ -545,21 +547,138 @@ app.post("/facility/signup", function _callee10(req, res) {
 
         case 4:
           userResponse = _context10.sent;
+          console.log(userResponse.displayName);
           res.json(userResponse);
-          _context10.next = 11;
+          _context10.next = 12;
           break;
 
-        case 8:
-          _context10.prev = 8;
+        case 9:
+          _context10.prev = 9;
           _context10.t0 = _context10["catch"](0);
           res.send(_context10.t0);
 
-        case 11:
+        case 12:
         case "end":
           return _context10.stop();
       }
     }
+  }, null, null, [[0, 9]]);
+});
+app.post("/create/order", function _callee11(req, res) {
+  var labjson, id;
+  return regeneratorRuntime.async(function _callee11$(_context11) {
+    while (1) {
+      switch (_context11.prev = _context11.next) {
+        case 0:
+          _context11.prev = 0;
+          labjson = {
+            ucid_sent: req.body.ucid_sent,
+            ucid_recieved: req.body.ucid_recieved,
+            information: req.body.information,
+            cost: req.body.cost,
+            date: req.body.date,
+            status: req.body.status
+          }; // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+          // The labjson object is saved as the document data.
+
+          id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
+          _context11.next = 5;
+          return regeneratorRuntime.awrap(db.collection('orders').doc(id).set(labjson));
+
+        case 5:
+          res.send(response);
+          _context11.next = 11;
+          break;
+
+        case 8:
+          _context11.prev = 8;
+          _context11.t0 = _context11["catch"](0);
+          res.send(_context11.t0);
+
+        case 11:
+        case "end":
+          return _context11.stop();
+      }
+    }
   }, null, null, [[0, 8]]);
+});
+app.get('/orders/sent/:field', function _callee12(req, res) {
+  var user_search, userRef, snapshot, array;
+  return regeneratorRuntime.async(function _callee12$(_context12) {
+    while (1) {
+      switch (_context12.prev = _context12.next) {
+        case 0:
+          _context12.prev = 0;
+          user_search = req.params.field;
+          userRef = db.collection('orders');
+          _context12.next = 5;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 5:
+          snapshot = _context12.sent;
+          array = [];
+          snapshot.forEach(function (doc) {
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
+            console.log(similarity);
+
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          _context12.next = 14;
+          break;
+
+        case 11:
+          _context12.prev = 11;
+          _context12.t0 = _context12["catch"](0);
+          res.send(_context12.t0);
+
+        case 14:
+        case "end":
+          return _context12.stop();
+      }
+    }
+  }, null, null, [[0, 11]]);
+});
+app.get('/orders/received/:field', function _callee13(req, res) {
+  var user_search, userRef, snapshot, array;
+  return regeneratorRuntime.async(function _callee13$(_context13) {
+    while (1) {
+      switch (_context13.prev = _context13.next) {
+        case 0:
+          _context13.prev = 0;
+          user_search = req.params.field;
+          userRef = db.collection('orders');
+          _context13.next = 5;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 5:
+          snapshot = _context13.sent;
+          array = [];
+          snapshot.forEach(function (doc) {
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_recieved);
+            console.log(similarity);
+
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          _context13.next = 14;
+          break;
+
+        case 11:
+          _context13.prev = 11;
+          _context13.t0 = _context13["catch"](0);
+          res.send(_context13.t0);
+
+        case 14:
+        case "end":
+          return _context13.stop();
+      }
+    }
+  }, null, null, [[0, 11]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
