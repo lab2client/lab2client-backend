@@ -376,6 +376,7 @@ app.post("/create", async (req,res) => {
           res.send(error);
         }
       });
+// this endpoint would be used to create the dashboard for the user, the user would be able to view all the forms for the lab he has submiited
 
       app.get('/dashboard/:field', async (req, res) => {
         try {
@@ -416,7 +417,7 @@ app.post("/create", async (req,res) => {
           res.status(500).json({ success: false, error: error.message });
         }
       });
-
+//  this endpoint is able to create signup for the any person whether being the lab provider or client.
       app.post("/facility/signup", async (req, res) => {
         try {
           const user = {
@@ -440,6 +441,9 @@ app.post("/create", async (req,res) => {
           res.send(error);
         }
       });
+
+      // using this endpoint the user is able to create order, 
+      // which would contain the both the user and client as well as the info for lab request 
     
       app.post("/create/order", async (req,res) => {
         try {
@@ -464,6 +468,46 @@ app.post("/create", async (req,res) => {
         }
         });
 
+        app.get('/user_detail/:field', async (req, res) => {
+          try {
+            const user_search = req.params.field;
+            const userRef = db.collection('info');
+            const snapshot = await userRef.get();
+        
+            let array = [];
+            snapshot.forEach((doc) => {
+              const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid);
+              console.log(similarity)
+              if (similarity >= 1.0) {
+                array.push(doc.data());
+              }
+            });
+            res.send(array);
+          } catch (error) {
+            res.send(error);
+          }
+        });
+  
+        app.post("/create/info", async (req,res) => {
+          try {
+            
+            const labjson = {
+              ucid: req.body.ucid,
+              first_name: req.body.first_name,
+              last_name: req.body.last_name,
+              user_name: req.body.user_name
+          }
+          // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+          // The labjson object is saved as the document data.
+          const id = req.body.ucid;
+          await db.collection('info').doc(id).set(labjson);
+              res.send(response);
+          }
+          catch(error) {
+              res.send(error)
+          }
+          });
+//  this endpoint is used to retrive all the forms that had been sent by the user
         app.get('/orders/sent/:field', async (req, res) => {
           try {
             const user_search = req.params.field;
@@ -483,7 +527,7 @@ app.post("/create", async (req,res) => {
             res.send(error);
           }
         });
-
+        //   this endpoint is used to retrive all the forms that had been recieved by the user
         app.get('/orders/received/:field', async (req, res) => {
           try {
             const user_search = req.params.field;

@@ -441,7 +441,8 @@ app.get('/search_word/:field', function _callee7(req, res) {
       }
     }
   }, null, null, [[0, 15]]);
-});
+}); // this endpoint would be used to create the dashboard for the user, the user would be able to view all the forms for the lab he has submiited
+
 app.get('/dashboard/:field', function _callee8(req, res) {
   var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee8$(_context8) {
@@ -523,7 +524,8 @@ app.post('/payment', function _callee9(req, res) {
       }
     }
   }, null, null, [[1, 8]]);
-});
+}); //  this endpoint is able to create signup for the any person whether being the lab provider or client.
+
 app.post("/facility/signup", function _callee10(req, res) {
   var user, userResponse;
   return regeneratorRuntime.async(function _callee10$(_context10) {
@@ -563,7 +565,9 @@ app.post("/facility/signup", function _callee10(req, res) {
       }
     }
   }, null, null, [[0, 9]]);
-});
+}); // using this endpoint the user is able to create order, 
+// which would contain the both the user and client as well as the info for lab request 
+
 app.post("/create/order", function _callee11(req, res) {
   var labjson, id;
   return regeneratorRuntime.async(function _callee11$(_context11) {
@@ -602,7 +606,7 @@ app.post("/create/order", function _callee11(req, res) {
     }
   }, null, null, [[0, 8]]);
 });
-app.get('/orders/sent/:field', function _callee12(req, res) {
+app.get('/user_detail/:field', function _callee12(req, res) {
   var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee12$(_context12) {
     while (1) {
@@ -610,7 +614,7 @@ app.get('/orders/sent/:field', function _callee12(req, res) {
         case 0:
           _context12.prev = 0;
           user_search = req.params.field;
-          userRef = db.collection('orders');
+          userRef = db.collection('info');
           _context12.next = 5;
           return regeneratorRuntime.awrap(userRef.get());
 
@@ -618,7 +622,7 @@ app.get('/orders/sent/:field', function _callee12(req, res) {
           snapshot = _context12.sent;
           array = [];
           snapshot.forEach(function (doc) {
-            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid);
             console.log(similarity);
 
             if (similarity >= 1.0) {
@@ -641,20 +645,97 @@ app.get('/orders/sent/:field', function _callee12(req, res) {
     }
   }, null, null, [[0, 11]]);
 });
-app.get('/orders/received/:field', function _callee13(req, res) {
-  var user_search, userRef, snapshot, array;
+app.post("/create/info", function _callee13(req, res) {
+  var labjson, id;
   return regeneratorRuntime.async(function _callee13$(_context13) {
     while (1) {
       switch (_context13.prev = _context13.next) {
         case 0:
           _context13.prev = 0;
+          labjson = {
+            ucid: req.body.ucid,
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            user_name: req.body.user_name
+          }; // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+          // The labjson object is saved as the document data.
+
+          id = req.body.ucid;
+          _context13.next = 5;
+          return regeneratorRuntime.awrap(db.collection('info').doc(id).set(labjson));
+
+        case 5:
+          res.send(response);
+          _context13.next = 11;
+          break;
+
+        case 8:
+          _context13.prev = 8;
+          _context13.t0 = _context13["catch"](0);
+          res.send(_context13.t0);
+
+        case 11:
+        case "end":
+          return _context13.stop();
+      }
+    }
+  }, null, null, [[0, 8]]);
+}); //  this endpoint is used to retrive all the forms that had been sent by the user
+
+app.get('/orders/sent/:field', function _callee14(req, res) {
+  var user_search, userRef, snapshot, array;
+  return regeneratorRuntime.async(function _callee14$(_context14) {
+    while (1) {
+      switch (_context14.prev = _context14.next) {
+        case 0:
+          _context14.prev = 0;
           user_search = req.params.field;
           userRef = db.collection('orders');
-          _context13.next = 5;
+          _context14.next = 5;
           return regeneratorRuntime.awrap(userRef.get());
 
         case 5:
-          snapshot = _context13.sent;
+          snapshot = _context14.sent;
+          array = [];
+          snapshot.forEach(function (doc) {
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
+            console.log(similarity);
+
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          _context14.next = 14;
+          break;
+
+        case 11:
+          _context14.prev = 11;
+          _context14.t0 = _context14["catch"](0);
+          res.send(_context14.t0);
+
+        case 14:
+        case "end":
+          return _context14.stop();
+      }
+    }
+  }, null, null, [[0, 11]]);
+}); //   this endpoint is used to retrive all the forms that had been recieved by the user
+
+app.get('/orders/received/:field', function _callee15(req, res) {
+  var user_search, userRef, snapshot, array;
+  return regeneratorRuntime.async(function _callee15$(_context15) {
+    while (1) {
+      switch (_context15.prev = _context15.next) {
+        case 0:
+          _context15.prev = 0;
+          user_search = req.params.field;
+          userRef = db.collection('orders');
+          _context15.next = 5;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 5:
+          snapshot = _context15.sent;
           array = [];
           snapshot.forEach(function (doc) {
             var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_recieved);
@@ -665,17 +746,17 @@ app.get('/orders/received/:field', function _callee13(req, res) {
             }
           });
           res.send(array);
-          _context13.next = 14;
+          _context15.next = 14;
           break;
 
         case 11:
-          _context13.prev = 11;
-          _context13.t0 = _context13["catch"](0);
-          res.send(_context13.t0);
+          _context15.prev = 11;
+          _context15.t0 = _context15["catch"](0);
+          res.send(_context15.t0);
 
         case 14:
         case "end":
-          return _context13.stop();
+          return _context15.stop();
       }
     }
   }, null, null, [[0, 11]]);
