@@ -442,6 +442,14 @@ app.get('/search_word/:field', function _callee7(req, res) {
     }
   }, null, null, [[0, 15]]);
 }); // this endpoint would be used to create the dashboard for the user, the user would be able to view all the forms for the lab he has submiited
+// This code defines an API endpoint for retrieving user data based on a search field. It expects a GET request to the /dashboard/:field URL, where :field represents the search field parameter.
+// When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "users" collection in the database using db.collection('users').
+// The code fetches all the documents from the "users" collection by calling userRef.get() and awaits the snapshot result. The snapshot contains a list of documents retrieved from the database.
+// An array named array is initialized to store the matching user objects. The code iterates through each document in the snapshot using snapshot.forEach((doc) => {}).
+// Inside the iteration, the code calculates the similarity between the search field and the user_unique_id field of the current document using stringSimilarity.compareTwoStrings(). The similarity score is logged to the console for debugging purposes.
+// If the similarity score is equal to or greater than 1.0 (an exact match), the user data (doc.data()) is added to the array.
+// After iterating through all the documents, the code sends the array as the response using res.send(array).
+// If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 
 app.get('/dashboard/:field', function _callee8(req, res) {
   var user_search, userRef, snapshot, array;
@@ -524,7 +532,14 @@ app.post('/payment', function _callee9(req, res) {
       }
     }
   }, null, null, [[1, 8]]);
-}); //  this endpoint is able to create signup for the any person whether being the lab provider or client.
+}); //  this endpoint is able to create signup for the any user whether being the lab provider or client.
+// This code defines an API endpoint for signing up a facility user. It expects a POST request to the /facility/signup URL, where the user information is sent in the request body.
+// When a request is received, the code extracts the user information (first name, last name, email, password) from the request body.
+// The code creates a new user account in the authentication system using admin.auth().createUser(). It passes the email, password, emailVerified, and disabled properties to the createUser() method to configure the new user. 
+// The method returns a user response object containing the details of the created user.
+// The user response object is logged to the console using console.log(userResponse.displayName) to display the user's display name. This can be helpful for debugging purposes.
+// Finally, the code sends the user response object as a JSON response using res.json(userResponse).
+// If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 
 app.post("/facility/signup", function _callee10(req, res) {
   var user, userResponse;
@@ -567,6 +582,11 @@ app.post("/facility/signup", function _callee10(req, res) {
   }, null, null, [[0, 9]]);
 }); // using this endpoint the user is able to create order, 
 // which would contain the both the user and client as well as the info for lab request 
+//       This code defines an API endpoint for creating an order. It expects a POST request to the /create/order URL, where the order information is sent in the request body.
+// When a request is received, the code extracts the order information (ucid_sent, ucid_received, information, cost, date, status) from the request body.
+// Any necessary operations to create the order, such as storing it in a database or performing additional validation, can be performed at this point.
+// Finally, the code sends the created order object as a JSON response using res.json(labjson).
+// If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 
 app.post("/create/order", function _callee11(req, res) {
   var labjson, id;
@@ -644,7 +664,17 @@ app.get('/userinfo/:field', function _callee12(req, res) {
       }
     }
   }, null, null, [[0, 11]]);
-});
+}); //  this endpoint is used to sent post request to create data for the individual user 
+//   This code defines an API endpoint for retrieving user information based on a search field. It expects a GET request to the /userinfo/:field URL, where :field represents the search field parameter.
+// When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "info" collection in the database using db.collection('info').
+// The code fetches all the documents from the "info" collection by calling userRef.get() and awaits the snapshot result. The snapshot contains a list of documents retrieved from the database.
+// An array named array is initialized to store the matching user information objects. The code iterates through each document in the snapshot using snapshot.forEach((doc) => {}).
+// Inside the iteration, the code calculates the similarity between the search field and the ucid field of the current document using stringSimilarity.compareTwoStrings(). The similarity score is logged to the console for debugging purposes.
+// If the similarity score is equal to or greater than 1.0 (an exact match), the user information (doc.data()) is added to the array.
+// After iterating through all the documents, the code sends the array of matching user information objects as the response using res.send(array).
+// If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
+// Please note that this documentation assumes the presence and proper configuration of the required dependencies, such as the db object for database connectivity and the stringSimilarity library for string comparison.
+
 app.post("/create/info", function _callee13(req, res) {
   var labjson, id;
   return regeneratorRuntime.async(function _callee13$(_context13) {
@@ -681,6 +711,14 @@ app.post("/create/info", function _callee13(req, res) {
     }
   }, null, null, [[0, 8]]);
 }); //  this endpoint is used to retrive all the forms that had been sent by the user
+// This code defines an API endpoint for retrieving sent orders based on a search field. It expects a GET request to the /orders/sent/:field URL, where :field represents the search field parameter.
+// When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "orders" collection in the database using db.collection('orders').
+// The code fetches all the documents from the "orders" collection where the ucid_sent field is equal to the search field by calling userRef.where('ucid_sent', '==', user_search).get() and awaits the snapshot result.
+//  The snapshot contains a list of documents retrieved from the database that match the query.
+// An array named array is initialized to store the matching sent order objects. The code iterates through each document in the snapshot using snapshot.forEach((doc) => {}) and adds the data of each document to the array using array.push(doc.data()).
+// After iterating through all the documents, the code sends the array of matching sent order objects as the response using res.send(array).
+// If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
+// Please note that this documentation assumes the presence and proper configuration of the required dependencies, such as the db object for database connectivity.
 
 app.get('/orders/sent/:field', function _callee14(req, res) {
   var user_search, userRef, snapshot, array;
@@ -721,6 +759,13 @@ app.get('/orders/sent/:field', function _callee14(req, res) {
     }
   }, null, null, [[0, 11]]);
 }); //   this endpoint is used to retrive all the forms that had been recieved by the user
+//         This code defines an API endpoint for retrieving received orders based on a search field. It expects a GET request to the /orders/received/:field URL, where :field represents the search field parameter.
+// When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "orders" collection in the database using db.collection('orders').
+// The code fetches all the documents from the "orders" collection by calling userRef.get() and awaits the snapshot result. The snapshot contains a list of documents retrieved from the database.
+// An array named array is initialized to store the matching received order objects. The code iterates through each document in the snapshot using snapshot.forEach((doc) => {}).
+// Inside the iteration, the code calculates the similarity between the search field and the ucid_received field of the current document using stringSimilarity.compareTwoStrings(). The similarity score is logged to the console for debugging purposes.
+// If the similarity score is equal to or greater than 1.0 (an exact match), the received order data (doc.data()) is added to the array.
+// After iterating through all the documents, the code sends the array of matching received order objects as the response using res.send(array).
 
 app.get('/orders/received/:field', function _callee15(req, res) {
   var user_search, userRef, snapshot, array;
