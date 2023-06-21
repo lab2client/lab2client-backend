@@ -468,7 +468,7 @@ app.post("/create", async (req,res) => {
         }
         });
 
-        app.get('/user_detail/:field', async (req, res) => {
+        app.get('/userinfo/:field', async (req, res) => {
           try {
             const user_search = req.params.field;
             const userRef = db.collection('info');

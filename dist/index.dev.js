@@ -606,7 +606,7 @@ app.post("/create/order", function _callee11(req, res) {
     }
   }, null, null, [[0, 8]]);
 });
-app.get('/user_detail/:field', function _callee12(req, res) {
+app.get('/userinfo/:field', function _callee12(req, res) {
   var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee12$(_context12) {
     while (1) {
