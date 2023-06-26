@@ -16,7 +16,7 @@ var cors = require('cors');
 
 var crypto = require('crypto');
 
-var stripe = require('stripe');
+var stripe = require('stripe')('sk_test_51NMaMTIprkPPYKcJ9uAibY8qhRuNj9DDTHtbeIjHKyYja44g55tx7Fld0jdF9C3qF5XTTevvDDeEIIBGk0JjfLXG00pCyx03Wt');
 
 var stringSimilarity = require("string-similarity");
 
@@ -43,12 +43,28 @@ var db = admin.firestore(); // This API endpoint (POST /create) is used to creat
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 
 app.post("/create", function _callee(req, res) {
-  var uid, labjson, id;
+  var labArray, key, index, labData, uid, labjson, id;
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
+          labArray = [];
+
+          for (key in req.body) {
+            if (key.startsWith('lab_name')) {
+              index = key.substring('lab_name'.length); // Extract the index from the key
+
+              labData = {
+                lab_name: req.body["lab_name".concat(index)],
+                lab_picture: req.body["lab_picture".concat(index)],
+                lab_description: req.body["lab_description".concat(index)],
+                lab_image: req.body["lab_image".concat(index)]
+              };
+              labArray.push(labData);
+            }
+          }
+
           uid = req.body.user_unique_id;
           labjson = {
             user_unique_id: req.body.user_unique_id,
@@ -90,6 +106,9 @@ app.post("/create", function _callee(req, res) {
             Sectors_of_application: {
               applications: req.body.applications
             },
+            array_pictures: {
+              labArray: labArray
+            },
             research: {
               DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
               areas_of_expertise: req.body.areas_of_expertise,
@@ -105,25 +124,25 @@ app.post("/create", function _callee(req, res) {
           // The labjson object is saved as the document data.
 
           id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-          _context.next = 6;
+          _context.next = 8;
           return regeneratorRuntime.awrap(db.collection('users').doc(id).set(labjson));
 
-        case 6:
+        case 8:
           res.send(response);
-          _context.next = 12;
+          _context.next = 14;
           break;
 
-        case 9:
-          _context.prev = 9;
+        case 11:
+          _context.prev = 11;
           _context.t0 = _context["catch"](0);
           res.send(_context.t0);
 
-        case 12:
+        case 14:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 9]]);
+  }, null, null, [[0, 11]]);
 }); // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
 // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
 // const response = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. It returns a response containing the query snapshot.
@@ -244,9 +263,7 @@ app["delete"]('/delete/:id', function _callee4(req, res) {
       }
     }
   });
-}); // The updated code snippet includes a new route handler for the GET request to search for documents in the "users" collection in Firestore based on a provided search field. 
-// Here's an explanation of the code:
-// app.get('/search/:field', async (req, res) => { ... }): 
+}); // app.get('/search/:field', async (req, res) => { ... }): 
 // This code defines a route handler for the GET request to the '/search/:field' endpoint. The :field part in the endpoint is a route parameter that represents the search field value.
 // const user_search = req.params.field;: This line retrieves the search field value from the route parameter and assigns it to the user_search variable.
 // console.log(user_search);: This line logs the user_search value to the console.
@@ -489,49 +506,6 @@ app.get('/dashboard/:field', function _callee8(req, res) {
       }
     }
   }, null, null, [[0, 11]]);
-}); // setting up the stripe payment for the client
-
-app.post('/payment', function _callee9(req, res) {
-  var _req$body, amount, currency, source, paymentIntent;
-
-  return regeneratorRuntime.async(function _callee9$(_context9) {
-    while (1) {
-      switch (_context9.prev = _context9.next) {
-        case 0:
-          _req$body = req.body, amount = _req$body.amount, currency = _req$body.currency, source = _req$body.source;
-          _context9.prev = 1;
-          _context9.next = 4;
-          return regeneratorRuntime.awrap(stripe.paymentIntents.create({
-            amount: amount,
-            currency: currency,
-            payment_method_types: ['card'],
-            payment_method: source,
-            confirm: true
-          }));
-
-        case 4:
-          paymentIntent = _context9.sent;
-          res.status(200).json({
-            success: true,
-            paymentIntent: paymentIntent
-          });
-          _context9.next = 11;
-          break;
-
-        case 8:
-          _context9.prev = 8;
-          _context9.t0 = _context9["catch"](1);
-          res.status(500).json({
-            success: false,
-            error: _context9.t0.message
-          });
-
-        case 11:
-        case "end":
-          return _context9.stop();
-      }
-    }
-  }, null, null, [[1, 8]]);
 }); //  this endpoint is able to create signup for the any user whether being the lab provider or client.
 // This code defines an API endpoint for signing up a facility user. It expects a POST request to the /facility/signup URL, where the user information is sent in the request body.
 // When a request is received, the code extracts the user information (first name, last name, email, password) from the request body.
@@ -541,20 +515,20 @@ app.post('/payment', function _callee9(req, res) {
 // Finally, the code sends the user response object as a JSON response using res.json(userResponse).
 // If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 
-app.post("/facility/signup", function _callee10(req, res) {
+app.post("/facility/signup", function _callee9(req, res) {
   var user, userResponse;
-  return regeneratorRuntime.async(function _callee10$(_context10) {
+  return regeneratorRuntime.async(function _callee9$(_context9) {
     while (1) {
-      switch (_context10.prev = _context10.next) {
+      switch (_context9.prev = _context9.next) {
         case 0:
-          _context10.prev = 0;
+          _context9.prev = 0;
           user = {
             first_name: req.body.first_name,
             last_name: req.body.last_name,
             email: req.body.email,
             password: req.body.password
           };
-          _context10.next = 4;
+          _context9.next = 4;
           return regeneratorRuntime.awrap(admin.auth().createUser({
             email: user.email,
             password: user.password,
@@ -563,20 +537,20 @@ app.post("/facility/signup", function _callee10(req, res) {
           }));
 
         case 4:
-          userResponse = _context10.sent;
+          userResponse = _context9.sent;
           console.log(userResponse.displayName);
           res.json(userResponse);
-          _context10.next = 12;
+          _context9.next = 12;
           break;
 
         case 9:
-          _context10.prev = 9;
-          _context10.t0 = _context10["catch"](0);
-          res.send(_context10.t0);
+          _context9.prev = 9;
+          _context9.t0 = _context9["catch"](0);
+          res.send(_context9.t0);
 
         case 12:
         case "end":
-          return _context10.stop();
+          return _context9.stop();
       }
     }
   }, null, null, [[0, 9]]);
@@ -588,13 +562,13 @@ app.post("/facility/signup", function _callee10(req, res) {
 // Finally, the code sends the created order object as a JSON response using res.json(labjson).
 // If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 
-app.post("/create/order", function _callee11(req, res) {
+app.post("/create/order", function _callee10(req, res) {
   var labjson, id;
-  return regeneratorRuntime.async(function _callee11$(_context11) {
+  return regeneratorRuntime.async(function _callee10$(_context10) {
     while (1) {
-      switch (_context11.prev = _context11.next) {
+      switch (_context10.prev = _context10.next) {
         case 0:
-          _context11.prev = 0;
+          _context10.prev = 0;
           labjson = {
             ucid_sent: req.body.ucid_sent,
             ucid_recieved: req.body.ucid_recieved,
@@ -606,40 +580,40 @@ app.post("/create/order", function _callee11(req, res) {
           // The labjson object is saved as the document data.
 
           id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-          _context11.next = 5;
+          _context10.next = 5;
           return regeneratorRuntime.awrap(db.collection('orders').doc(id).set(labjson));
 
         case 5:
           res.send(response);
-          _context11.next = 11;
+          _context10.next = 11;
           break;
 
         case 8:
-          _context11.prev = 8;
-          _context11.t0 = _context11["catch"](0);
-          res.send(_context11.t0);
+          _context10.prev = 8;
+          _context10.t0 = _context10["catch"](0);
+          res.send(_context10.t0);
 
         case 11:
         case "end":
-          return _context11.stop();
+          return _context10.stop();
       }
     }
   }, null, null, [[0, 8]]);
 });
-app.get('/userinfo/:field', function _callee12(req, res) {
+app.get('/userinfo/:field', function _callee11(req, res) {
   var user_search, userRef, snapshot, array;
-  return regeneratorRuntime.async(function _callee12$(_context12) {
+  return regeneratorRuntime.async(function _callee11$(_context11) {
     while (1) {
-      switch (_context12.prev = _context12.next) {
+      switch (_context11.prev = _context11.next) {
         case 0:
-          _context12.prev = 0;
+          _context11.prev = 0;
           user_search = req.params.field;
           userRef = db.collection('info');
-          _context12.next = 5;
+          _context11.next = 5;
           return regeneratorRuntime.awrap(userRef.get());
 
         case 5:
-          snapshot = _context12.sent;
+          snapshot = _context11.sent;
           array = [];
           snapshot.forEach(function (doc) {
             var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid);
@@ -650,17 +624,17 @@ app.get('/userinfo/:field', function _callee12(req, res) {
             }
           });
           res.send(array);
-          _context12.next = 14;
+          _context11.next = 14;
           break;
 
         case 11:
-          _context12.prev = 11;
-          _context12.t0 = _context12["catch"](0);
-          res.send(_context12.t0);
+          _context11.prev = 11;
+          _context11.t0 = _context11["catch"](0);
+          res.send(_context11.t0);
 
         case 14:
         case "end":
-          return _context12.stop();
+          return _context11.stop();
       }
     }
   }, null, null, [[0, 11]]);
@@ -675,13 +649,13 @@ app.get('/userinfo/:field', function _callee12(req, res) {
 // If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 // Please note that this documentation assumes the presence and proper configuration of the required dependencies, such as the db object for database connectivity and the stringSimilarity library for string comparison.
 
-app.post("/create/info", function _callee13(req, res) {
+app.post("/create/info", function _callee12(req, res) {
   var labjson, id;
-  return regeneratorRuntime.async(function _callee13$(_context13) {
+  return regeneratorRuntime.async(function _callee12$(_context12) {
     while (1) {
-      switch (_context13.prev = _context13.next) {
+      switch (_context12.prev = _context12.next) {
         case 0:
-          _context13.prev = 0;
+          _context12.prev = 0;
           labjson = {
             ucid: req.body.ucid,
             first_name: req.body.first_name,
@@ -691,22 +665,22 @@ app.post("/create/info", function _callee13(req, res) {
           // The labjson object is saved as the document data.
 
           id = req.body.ucid;
-          _context13.next = 5;
+          _context12.next = 5;
           return regeneratorRuntime.awrap(db.collection('info').doc(id).set(labjson));
 
         case 5:
           res.send(response);
-          _context13.next = 11;
+          _context12.next = 11;
           break;
 
         case 8:
-          _context13.prev = 8;
-          _context13.t0 = _context13["catch"](0);
-          res.send(_context13.t0);
+          _context12.prev = 8;
+          _context12.t0 = _context12["catch"](0);
+          res.send(_context12.t0);
 
         case 11:
         case "end":
-          return _context13.stop();
+          return _context12.stop();
       }
     }
   }, null, null, [[0, 8]]);
@@ -720,7 +694,54 @@ app.post("/create/info", function _callee13(req, res) {
 // If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 // Please note that this documentation assumes the presence and proper configuration of the required dependencies, such as the db object for database connectivity.
 
-app.get('/orders/sent/:field', function _callee14(req, res) {
+app.get('/orders/sent/:field', function _callee13(req, res) {
+  var user_search, userRef, snapshot, array;
+  return regeneratorRuntime.async(function _callee13$(_context13) {
+    while (1) {
+      switch (_context13.prev = _context13.next) {
+        case 0:
+          _context13.prev = 0;
+          user_search = req.params.field;
+          userRef = db.collection('orders');
+          _context13.next = 5;
+          return regeneratorRuntime.awrap(userRef.get());
+
+        case 5:
+          snapshot = _context13.sent;
+          array = [];
+          snapshot.forEach(function (doc) {
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
+            console.log(similarity);
+
+            if (similarity >= 1.0) {
+              array.push(doc.data());
+            }
+          });
+          res.send(array);
+          _context13.next = 14;
+          break;
+
+        case 11:
+          _context13.prev = 11;
+          _context13.t0 = _context13["catch"](0);
+          res.send(_context13.t0);
+
+        case 14:
+        case "end":
+          return _context13.stop();
+      }
+    }
+  }, null, null, [[0, 11]]);
+}); //   this endpoint is used to retrive all the forms that had been recieved by the user
+//         This code defines an API endpoint for retrieving received orders based on a search field. It expects a GET request to the /orders/received/:field URL, where :field represents the search field parameter.
+// When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "orders" collection in the database using db.collection('orders').
+// The code fetches all the documents from the "orders" collection by calling userRef.get() and awaits the snapshot result. The snapshot contains a list of documents retrieved from the database.
+// An array named array is initialized to store the matching received order objects. The code iterates through each document in the snapshot using snapshot.forEach((doc) => {}).
+// Inside the iteration, the code calculates the similarity between the search field and the ucid_received field of the current document using stringSimilarity.compareTwoStrings(). The similarity score is logged to the console for debugging purposes.
+// If the similarity score is equal to or greater than 1.0 (an exact match), the received order data (doc.data()) is added to the array.
+// After iterating through all the documents, the code sends the array of matching received order objects as the response using res.send(array).
+
+app.get('/orders/received/:field', function _callee14(req, res) {
   var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee14$(_context14) {
     while (1) {
@@ -736,7 +757,7 @@ app.get('/orders/sent/:field', function _callee14(req, res) {
           snapshot = _context14.sent;
           array = [];
           snapshot.forEach(function (doc) {
-            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
+            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_recieved);
             console.log(similarity);
 
             if (similarity >= 1.0) {
@@ -758,56 +779,88 @@ app.get('/orders/sent/:field', function _callee14(req, res) {
       }
     }
   }, null, null, [[0, 11]]);
-}); //   this endpoint is used to retrive all the forms that had been recieved by the user
-//         This code defines an API endpoint for retrieving received orders based on a search field. It expects a GET request to the /orders/received/:field URL, where :field represents the search field parameter.
-// When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "orders" collection in the database using db.collection('orders').
-// The code fetches all the documents from the "orders" collection by calling userRef.get() and awaits the snapshot result. The snapshot contains a list of documents retrieved from the database.
-// An array named array is initialized to store the matching received order objects. The code iterates through each document in the snapshot using snapshot.forEach((doc) => {}).
-// Inside the iteration, the code calculates the similarity between the search field and the ucid_received field of the current document using stringSimilarity.compareTwoStrings(). The similarity score is logged to the console for debugging purposes.
-// If the similarity score is equal to or greater than 1.0 (an exact match), the received order data (doc.data()) is added to the array.
-// After iterating through all the documents, the code sends the array of matching received order objects as the response using res.send(array).
+});
+app.post('/payment-intent', function _callee15(req, res) {
+  var _req$body, amount, currency, description, paymentIntent;
 
-app.get('/orders/received/:field', function _callee15(req, res) {
-  var user_search, userRef, snapshot, array;
   return regeneratorRuntime.async(function _callee15$(_context15) {
     while (1) {
       switch (_context15.prev = _context15.next) {
         case 0:
           _context15.prev = 0;
-          user_search = req.params.field;
-          userRef = db.collection('orders');
-          _context15.next = 5;
-          return regeneratorRuntime.awrap(userRef.get());
+          _req$body = req.body, amount = _req$body.amount, currency = _req$body.currency, description = _req$body.description;
+          _context15.next = 4;
+          return regeneratorRuntime.awrap(stripe.paymentIntents.create({
+            amount: amount,
+            currency: currency,
+            description: description
+          }));
 
-        case 5:
-          snapshot = _context15.sent;
-          array = [];
-          snapshot.forEach(function (doc) {
-            var similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_recieved);
-            console.log(similarity);
-
-            if (similarity >= 1.0) {
-              array.push(doc.data());
-            }
+        case 4:
+          paymentIntent = _context15.sent;
+          res.send({
+            clientSecret: paymentIntent.client_secret
           });
-          res.send(array);
-          _context15.next = 14;
+          _context15.next = 11;
           break;
 
-        case 11:
-          _context15.prev = 11;
+        case 8:
+          _context15.prev = 8;
           _context15.t0 = _context15["catch"](0);
-          res.send(_context15.t0);
+          res.status(500).send({
+            error: _context15.t0.message
+          });
 
-        case 14:
+        case 11:
         case "end":
           return _context15.stop();
       }
     }
-  }, null, null, [[0, 11]]);
+  }, null, null, [[0, 8]]);
 });
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
+});
+app.get('/getpicturearray/:id', function _callee16(req, res) {
+  var docId, docRef, doc;
+  return regeneratorRuntime.async(function _callee16$(_context16) {
+    while (1) {
+      switch (_context16.prev = _context16.next) {
+        case 0:
+          _context16.prev = 0;
+          docId = req.params.id;
+          docRef = db.collection('users').doc(docId);
+          _context16.next = 5;
+          return regeneratorRuntime.awrap(docRef.get());
+
+        case 5:
+          doc = _context16.sent;
+
+          if (doc.exists) {
+            _context16.next = 8;
+            break;
+          }
+
+          return _context16.abrupt("return", res.status(404).send('Document not found'));
+
+        case 8:
+          // Return the document data as the API response
+          res.json(doc.data().array_pictures.labArray);
+          _context16.next = 15;
+          break;
+
+        case 11:
+          _context16.prev = 11;
+          _context16.t0 = _context16["catch"](0);
+          console.error('Error retrieving document:', _context16.t0);
+          res.status(500).send('Internal Server Error');
+
+        case 15:
+        case "end":
+          return _context16.stop();
+      }
+    }
+  }, null, null, [[0, 11]]);
 });
 app.listen(process.env.PORT || 5000, function () {
   console.log('http://localhost:5000/');

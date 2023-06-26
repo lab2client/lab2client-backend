@@ -28,6 +28,6 @@
     "nodemon": "^2.0.22",
     "string-similarity": "^4.0.4",
     "string-similarity-js": "^2.1.4",
-    "stripe": "^12.8.0"
+    "stripe": "^12.10.0"
   }
 }

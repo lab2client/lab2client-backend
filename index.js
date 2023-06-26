@@ -17,7 +17,7 @@ const express = require('express');
 const app = express();
 var cors = require('cors')
 var crypto = require('crypto');
-const stripe = require('stripe');
+const stripe = require('stripe')('sk_test_51NMaMTIprkPPYKcJ9uAibY8qhRuNj9DDTHtbeIjHKyYja44g55tx7Fld0jdF9C3qF5XTTevvDDeEIIBGk0JjfLXG00pCyx03Wt');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
@@ -29,7 +29,6 @@ admin.initializeApp({
 });
 
 app.use(cors());
-
 
 
 // This middleware is used to parse incoming requests with JSON payloads.
@@ -46,6 +45,20 @@ const db  = admin.firestore();
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 app.post("/create", async (req,res) => {
     try {
+
+      const labArray = [];
+      for (const key in req.body) {
+        if (key.startsWith('lab_name')) {
+          const index = key.substring('lab_name'.length); // Extract the index from the key
+          const labData = {
+            lab_name: req.body[`lab_name${index}`],
+            lab_picture: req.body[`lab_picture${index}`],
+            lab_description: req.body[`lab_description${index}`],
+            lab_image: req.body[`lab_image${index}`]
+          };
+          labArray.push(labData);
+        }
+      }
       const uid =  req.body.user_unique_id;
         const labjson = {
           user_unique_id : req.body.user_unique_id,
@@ -86,6 +99,9 @@ app.post("/create", async (req,res) => {
         },
         Sectors_of_application: {
             applications: req.body.applications
+        },
+        array_pictures: {
+          labArray
         },
         research: {
             DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
@@ -141,6 +157,9 @@ app.post("/create", async (req,res) => {
 
     });
 
+
+
+
   // app.get('/getspecific/:id', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getspecific/:id' endpoint. 
   // The :id part in the endpoint is a route parameter that can be accessed using req.params.id.
 
@@ -194,8 +213,7 @@ app.post("/create", async (req,res) => {
             res.send(error)
         }
     })
-    // The updated code snippet includes a new route handler for the GET request to search for documents in the "users" collection in Firestore based on a provided search field. 
-    // Here's an explanation of the code:
+
 
     // app.get('/search/:field', async (req, res) => { ... }): 
     // This code defines a route handler for the GET request to the '/search/:field' endpoint. The :field part in the endpoint is a route parameter that represents the search field value.
@@ -413,25 +431,6 @@ app.post("/create", async (req,res) => {
         }
       });
 
-      // setting up the stripe payment for the client
-
-      app.post('/payment', async (req, res) => {
-        const { amount, currency, source } = req.body;
-      
-        try {
-          const paymentIntent = await stripe.paymentIntents.create({
-            amount,
-            currency,
-            payment_method_types: ['card'],
-            payment_method: source,
-            confirm: true,
-          });
-      
-          res.status(200).json({ success: true, paymentIntent });
-        } catch (error) {
-          res.status(500).json({ success: false, error: error.message });
-        }
-      });
 //  this endpoint is able to create signup for the any user whether being the lab provider or client.
 // This code defines an API endpoint for signing up a facility user. It expects a POST request to the /facility/signup URL, where the user information is sent in the request body.
 
@@ -629,13 +628,50 @@ app.post("/create", async (req,res) => {
             res.send(error);
           }
         });
-    
+
+        app.post('/payment-intent', async (req, res) => {
+          try {
+            const { amount, currency, description } = req.body;
+        
+            const paymentIntent = await stripe.paymentIntents.create({
+              amount,
+              currency,
+              description,
+            });
+        
+            res.send({
+              clientSecret: paymentIntent.client_secret,
+            });
+          } catch (error) {
+            res.status(500).send({ error: error.message });
+          }
+        });
 
 app.get("/home", (req,res) => {
 
     res.send("Hello we are Lab2Client Team")
 
 })
+
+app.get('/getpicturearray/:id', async (req,res) => {
+
+  try {
+    const docId = req.params.id;
+    const docRef = db.collection('users').doc(docId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).send('Document not found');
+    }
+
+    // Return the document data as the API response
+    res.json(doc.data().array_pictures.labArray);
+  } catch (error) {
+    console.error('Error retrieving document:', error);
+    res.status(500).send('Internal Server Error');
+  }
+    
+});
 
 app.listen(process.env.PORT || 5000,() => {
 
