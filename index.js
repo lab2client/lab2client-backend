@@ -53,8 +53,7 @@ app.post("/create", async (req,res) => {
           const labData = {
             lab_name: req.body[`lab_name${index}`],
             lab_picture: req.body[`lab_picture${index}`],
-            lab_description: req.body[`lab_description${index}`],
-            lab_image: req.body[`lab_image${index}`]
+            lab_description: req.body[`lab_description${index}`]
           };
           labArray.push(labData);
         }

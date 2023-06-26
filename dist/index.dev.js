@@ -58,8 +58,7 @@ app.post("/create", function _callee(req, res) {
               labData = {
                 lab_name: req.body["lab_name".concat(index)],
                 lab_picture: req.body["lab_picture".concat(index)],
-                lab_description: req.body["lab_description".concat(index)],
-                lab_image: req.body["lab_image".concat(index)]
+                lab_description: req.body["lab_description".concat(index)]
               };
               labArray.push(labData);
             }
