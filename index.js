@@ -45,20 +45,6 @@ const db  = admin.firestore();
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 app.post("/create", async (req,res) => {
     try {
-
-      const labArray = [];
-      for (const key in req.body) {
-        if (key.startsWith('lab_name')) {
-          const index = key.substring('lab_name'.length); // Extract the index from the key
-          const labData = {
-            lab_name: req.body[`lab_name${index}`],
-            lab_picture: req.body[`lab_picture${index}`],
-            lab_description: req.body[`lab_description${index}`]
-          };
-          labArray.push(labData);
-        }
-      }
-      const uid =  req.body.user_unique_id;
         const labjson = {
           user_unique_id : req.body.user_unique_id,
             identification :{
@@ -99,9 +85,7 @@ app.post("/create", async (req,res) => {
         Sectors_of_application: {
             applications: req.body.applications
         },
-        array_pictures: {
-          labArray
-        },
+        lab_equipment: req.body.lab_equipment,
         research: {
             DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
             areas_of_expertise: req.body.areas_of_expertise,
@@ -652,7 +636,7 @@ app.get("/home", (req,res) => {
 
 })
 
-app.get('/getpicturearray/:id', async (req,res) => {
+app.get('/getequipment/:id', async (req,res) => {
 
   try {
     const docId = req.params.id;
@@ -664,7 +648,7 @@ app.get('/getpicturearray/:id', async (req,res) => {
     }
 
     // Return the document data as the API response
-    res.json(doc.data().array_pictures.labArray);
+    res.json(doc.data().lab_equipment);
   } catch (error) {
     console.error('Error retrieving document:', error);
     res.status(500).send('Internal Server Error');

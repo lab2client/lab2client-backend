@@ -43,28 +43,12 @@ var db = admin.firestore(); // This API endpoint (POST /create) is used to creat
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 
 app.post("/create", function _callee(req, res) {
-  var labArray, key, index, labData, uid, labjson, id;
+  var labjson, id;
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          labArray = [];
-
-          for (key in req.body) {
-            if (key.startsWith('lab_name')) {
-              index = key.substring('lab_name'.length); // Extract the index from the key
-
-              labData = {
-                lab_name: req.body["lab_name".concat(index)],
-                lab_picture: req.body["lab_picture".concat(index)],
-                lab_description: req.body["lab_description".concat(index)]
-              };
-              labArray.push(labData);
-            }
-          }
-
-          uid = req.body.user_unique_id;
           labjson = {
             user_unique_id: req.body.user_unique_id,
             identification: {
@@ -105,9 +89,7 @@ app.post("/create", function _callee(req, res) {
             Sectors_of_application: {
               applications: req.body.applications
             },
-            array_pictures: {
-              labArray: labArray
-            },
+            lab_equipment: req.body.lab_equipment,
             research: {
               DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
               areas_of_expertise: req.body.areas_of_expertise,
@@ -123,25 +105,25 @@ app.post("/create", function _callee(req, res) {
           // The labjson object is saved as the document data.
 
           id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-          _context.next = 8;
+          _context.next = 5;
           return regeneratorRuntime.awrap(db.collection('users').doc(id).set(labjson));
 
-        case 8:
+        case 5:
           res.send(response);
-          _context.next = 14;
+          _context.next = 11;
           break;
 
-        case 11:
-          _context.prev = 11;
+        case 8:
+          _context.prev = 8;
           _context.t0 = _context["catch"](0);
           res.send(_context.t0);
 
-        case 14:
+        case 11:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 11]]);
+  }, null, null, [[0, 8]]);
 }); // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
 // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
 // const response = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. It returns a response containing the query snapshot.
@@ -820,7 +802,7 @@ app.post('/payment-intent', function _callee15(req, res) {
 app.get("/home", function (req, res) {
   res.send("Hello we are Lab2Client Team");
 });
-app.get('/getpicturearray/:id', function _callee16(req, res) {
+app.get('/getequipment/:id', function _callee16(req, res) {
   var docId, docRef, doc;
   return regeneratorRuntime.async(function _callee16$(_context16) {
     while (1) {
@@ -844,7 +826,7 @@ app.get('/getpicturearray/:id', function _callee16(req, res) {
 
         case 8:
           // Return the document data as the API response
-          res.json(doc.data().array_pictures.labArray);
+          res.json(doc.data().lab_equipment);
           _context16.next = 15;
           break;
 
