@@ -17,7 +17,7 @@ const express = require('express');
 const app = express();
 var cors = require('cors')
 var crypto = require('crypto');
-const stripe = require('stripe')('sk_test_51NMaMTIprkPPYKcJ9uAibY8qhRuNj9DDTHtbeIjHKyYja44g55tx7Fld0jdF9C3qF5XTTevvDDeEIIBGk0JjfLXG00pCyx03Wt');
+const stripe = require('stripe')('sk_test_51NB2f5L5vejuzwJ3NTgtAZPIw9WyY8rE817oV6bpYcZGqxr67VYm7a7gfVUFRL6MjH0zXwKStVdjOAF51lpb1XcH00W2mzJDQj');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
@@ -25,7 +25,7 @@ const credentials = require('./key.json');
 
 
 admin.initializeApp({
-    credential : admin.credential.cert(credentials)
+	credential: admin.credential.cert(credentials)
 });
 
 app.use(cors());
@@ -37,114 +37,114 @@ app.use(cors());
 app.use(express.json());
 // This middleware is used to parse incoming requests with URL-encoded payloads. 
 // It allows you to access the request body as key-value pairs. The extended: true option enables the parsing of rich objects and arrays.
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 //  This code initializes a Firestore instance using the admin object.
 //  It suggests that you are using Firebase Admin SDK to interact with Firestore, which is a NoSQL document database provided by Firebase.
-const db  = admin.firestore();
+const db = admin.firestore();
 // This API endpoint (POST /create) is used to create a new lab document in the system. It expects a JSON payload in the request body with the following properties
 // Upon a successful request, a new lab document will be created in the system with the provided information.
-app.post("/create", async (req,res) => {
-    try {
-        const labjson = {
-          user_unique_id : req.body.user_unique_id,
-            identification :{
-            email_identification: req.body.email_identification,
-            institution_name: req.body.institution_name,
-            research_facillity: req.body.research_facillity,
-            street_address: req.body.street_address,
-            building_name: req.body.building_name,
-            city: req.body.city,
-            province: req.body.province,
-            postal_code: req.body.postal_code,
-        },
-        contact: {
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            title: req.body.title,
-            office: req.body.office,
-            email: req.body.email,
-            telephone: req.body.telephone,
-            language: req.body.language,
-            first_name2: req.body.first_name2,
-            last_name2: req.body.last_name2,
-            title2: req.body.title2,
-            office2: req.body.office2,
-            email2: req.body.email2,
-            telephone2: req.body.telephone2,
-            language2: req.body.language2,
-        },
-        facilities: {
-            CFI_project_number: req.body.CFI_project_number,
-            Project_leader_first_name: req.body.Project_leader_first_name,
-            Project_leader_last_name: req.body.Project_leader_last_name,
-            Project_leader_email: req.body.Project_leader_email,
-        },
-        Fields_of_research: {
-            fields: req.body.fields
-        },
-        Sectors_of_application: {
-            applications: req.body.applications
-        },
-        lab_equipment: req.body.lab_equipment,
-        research: {
-            DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
-            areas_of_expertise: req.body.areas_of_expertise,
-            Research_services: req.body.Research_services,
-            DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE: req.body.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE,
-            PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS: req.body.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS,
-            website: req.body.website,
-            Additional_information : req.body.Additional_information,
-            Social_media_platforms : req.body.Social_media_platforms,
-            LOGOS: req.body.LOGOS
-        
-        }
-    }
-    // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
-    // The labjson object is saved as the document data.
-    const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-    await db.collection('users').doc(id).set(labjson);
-        res.send(response);
-    }
-    catch(error) {
-        res.send(error)
-    }
-    });
+app.post("/create", async (req, res) => {
+	try {
+		const labjson = {
+			user_unique_id: req.body.user_unique_id,
+			identification: {
+				email_identification: req.body.email_identification,
+				institution_name: req.body.institution_name,
+				research_facillity: req.body.research_facillity,
+				street_address: req.body.street_address,
+				building_name: req.body.building_name,
+				city: req.body.city,
+				province: req.body.province,
+				postal_code: req.body.postal_code,
+			},
+			contact: {
+				first_name: req.body.first_name,
+				last_name: req.body.last_name,
+				title: req.body.title,
+				office: req.body.office,
+				email: req.body.email,
+				telephone: req.body.telephone,
+				language: req.body.language,
+				first_name2: req.body.first_name2,
+				last_name2: req.body.last_name2,
+				title2: req.body.title2,
+				office2: req.body.office2,
+				email2: req.body.email2,
+				telephone2: req.body.telephone2,
+				language2: req.body.language2,
+			},
+			facilities: {
+				CFI_project_number: req.body.CFI_project_number,
+				Project_leader_first_name: req.body.Project_leader_first_name,
+				Project_leader_last_name: req.body.Project_leader_last_name,
+				Project_leader_email: req.body.Project_leader_email,
+			},
+			Fields_of_research: {
+				fields: req.body.fields
+			},
+			Sectors_of_application: {
+				applications: req.body.applications
+			},
+			lab_equipment: req.body.lab_equipment,
+			research: {
+				DESCRIPTION_OF_YOUR_FACILITY: req.body.DESCRIPTION_OF_YOUR_FACILITY,
+				areas_of_expertise: req.body.areas_of_expertise,
+				Research_services: req.body.Research_services,
+				DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE: req.body.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE,
+				PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS: req.body.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS,
+				website: req.body.website,
+				Additional_information: req.body.Additional_information,
+				Social_media_platforms: req.body.Social_media_platforms,
+				LOGOS: req.body.LOGOS
 
-    // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
+			}
+		}
+		// This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+		// The labjson object is saved as the document data.
+		const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
+		await db.collection('users').doc(id).set(labjson);
+		res.send(response);
+	}
+	catch (error) {
+		res.send(error)
+	}
+});
 
-    // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
-    
-    // const response = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. It returns a response containing the query snapshot.
-    
-    // let array = [];: This line initializes an empty array to store the retrieved documents.
-    
-    // response.forEach(doc => { array.push(doc.data()); }): This code iterates over each document in the response using the forEach() method. It retrieves the data of each document using the data() method and pushes it to the array.
-    
-    // res.send(array);: After retrieving and formatting the documents, the array containing all the document data is sent as the response.
-    
-    // catch(error) { res.send(error); }: If an error occurs during the retrieval process, the catch block is executed. The error message is sent as the response.
-    app.get('/getall', async(req,res) => {
+// app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
 
-        try {
-            const userRef = db.collection('users');
-            const response = await userRef.get();
-            let array = [];
-            response.forEach(doc => {
-                array.push(doc.data());
-            })
-            res.send(array);
-        }
-        catch(error){
-            res.send(error);
-        }
+// const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
 
-    });
+// const response = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. It returns a response containing the query snapshot.
 
+// let array = [];: This line initializes an empty array to store the retrieved documents.
 
+// response.forEach(doc => { array.push(doc.data()); }): This code iterates over each document in the response using the forEach() method. It retrieves the data of each document using the data() method and pushes it to the array.
+
+// res.send(array);: After retrieving and formatting the documents, the array containing all the document data is sent as the response.
+
+// catch(error) { res.send(error); }: If an error occurs during the retrieval process, the catch block is executed. The error message is sent as the response.
+app.get('/getall', async (req, res) => {
+
+	try {
+		const userRef = db.collection('users');
+		const response = await userRef.get();
+		let array = [];
+		response.forEach(doc => {
+			array.push(doc.data());
+		})
+		res.send(array);
+	}
+	catch (error) {
+		res.send(error);
+	}
+
+});
 
 
-  // app.get('/getspecific/:id', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getspecific/:id' endpoint. 
-  // The :id part in the endpoint is a route parameter that can be accessed using req.params.id.
+
+
+// app.get('/getspecific/:id', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getspecific/:id' endpoint. 
+// The :id part in the endpoint is a route parameter that can be accessed using req.params.id.
 
 // const userRef = db.collection("users").doc(req.params.id);: This line creates a reference to a specific document in the "users" collection based on the provided id from the route parameter.
 
@@ -154,100 +154,100 @@ app.post("/create", async (req,res) => {
 
 // catch(error) { res.send(error); }: If an error occurs during the retrieval process, the catch block is executed. The error message is sent as the response.
 
-    app.get('/getspecific/:id', async (req,res) => {
+app.get('/getspecific/:id', async (req, res) => {
 
-      try {
-        const docId = req.params.id;
-        const docRef = db.collection('users').doc(docId);
-        const doc = await docRef.get();
-    
-        if (!doc.exists) {
-          return res.status(404).send('Document not found');
-        }
-    
-        // Return the document data as the API response
-        res.json(doc.data());
-      } catch (error) {
-        console.error('Error retrieving document:', error);
-        res.status(500).send('Internal Server Error');
-      }
-        
-    });
-    // The updated code snippet includes a new route handler for the DELETE request to delete a specific document from the "users" collection in Firestore based on the provided ID.
-    //  Here's an explanation of the code:
+	try {
+		const docId = req.params.id;
+		const docRef = db.collection('users').doc(docId);
+		const doc = await docRef.get();
 
-    // app.delete('/delete/:id', async (req, res) => { ... }): This code defines a route handler for the DELETE request to the '/delete/:id' endpoint.
-    //  The :id part in the endpoint is a route parameter that represents the ID of the document to be deleted.
-    
-    // const response = db.collection("users").doc(req.params.id).delete();: This line deletes the specific document from Firestore based on the provided id from the route parameter.
-    //  The delete() method is called on the document reference to delete it.
-    
-    // res.send(response);: After deleting the document, the response is sent as the response.
-    //  Note that the response in this case doesn't contain any data, as the delete() method doesn't return any data. It confirms the success of the delete operation.
-    
-    // catch(error) { res.send(error); }: If an error occurs during the deletion process, the catch block is executed. The error message is sent as the response.
-    
-    
-    app.delete('/delete/:id' , async(req,res) => {
-        try {
-            const response = db.collection("users").doc(req.params.id).delete();
-            res.send(response);
-        } catch(error) {
-            res.send(error)
-        }
-    })
+		if (!doc.exists) {
+			return res.status(404).send('Document not found');
+		}
+
+		// Return the document data as the API response
+		res.json(doc.data());
+	} catch (error) {
+		console.error('Error retrieving document:', error);
+		res.status(500).send('Internal Server Error');
+	}
+
+});
+// The updated code snippet includes a new route handler for the DELETE request to delete a specific document from the "users" collection in Firestore based on the provided ID.
+//  Here's an explanation of the code:
+
+// app.delete('/delete/:id', async (req, res) => { ... }): This code defines a route handler for the DELETE request to the '/delete/:id' endpoint.
+//  The :id part in the endpoint is a route parameter that represents the ID of the document to be deleted.
+
+// const response = db.collection("users").doc(req.params.id).delete();: This line deletes the specific document from Firestore based on the provided id from the route parameter.
+//  The delete() method is called on the document reference to delete it.
+
+// res.send(response);: After deleting the document, the response is sent as the response.
+//  Note that the response in this case doesn't contain any data, as the delete() method doesn't return any data. It confirms the success of the delete operation.
+
+// catch(error) { res.send(error); }: If an error occurs during the deletion process, the catch block is executed. The error message is sent as the response.
 
 
-    // app.get('/search/:field', async (req, res) => { ... }): 
-    // This code defines a route handler for the GET request to the '/search/:field' endpoint. The :field part in the endpoint is a route parameter that represents the search field value.
-    
-    // const user_search = req.params.field;: This line retrieves the search field value from the route parameter and assigns it to the user_search variable.
-    
-    // console.log(user_search);: This line logs the user_search value to the console.
-    
-    // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
-    
-    // const snapshot = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. The result is stored in the snapshot variable.
-    
-    // let array = [];: This line initializes an empty array to store the matching documents.
-    
-    // snapshot.forEach((doc) => { ... }): This code iterates over each document in the snapshot using the forEach() method.
-    //  For each document, the code compares the search field value (user_search) with a specific field in the document (in this case, the identification.city field).
-    //  It calculates the similarity between the search field value and the document field value using the stringSimilarity.compareTwoStrings() function.
+app.delete('/delete/:id', async (req, res) => {
+	try {
+		const response = db.collection("users").doc(req.params.id).delete();
+		res.send(response);
+	} catch (error) {
+		res.send(error)
+	}
+})
 
-    
-    // console.log(doc.data().identification.city);: This line logs the document's city field value to the console.
-    
-    // console.log(similarity);: This line logs the calculated similarity between the search field value and the document's city field value to the console.
-    
-    // if (similarity > 0.5) { array.push(doc.data()); }: 
-    // This code checks if the calculated similarity is greater than a threshold value of 0.5. If the similarity is above the threshold, the document data is pushed into the array.
-    
-    // res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
-    
-    // catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
-    app.get('/search_city/:field', async (req, res) => {
-        try {
-          const user_search = req.params.field;
-          console.log(user_search);
-          const userRef = db.collection('users');
-          const snapshot = await userRef.get();
-      
-          let array = [];
-          snapshot.forEach((doc) => {
 
-            console.log(doc.data().identification.city)
-            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
-            console.log(similarity)
-            if (similarity > 0.5) {
-              array.push(doc.data());
-            }
-          });
-          res.send(array);
-        } catch (error) {
-          res.send(error);
-        }
-      });
+// app.get('/search/:field', async (req, res) => { ... }): 
+// This code defines a route handler for the GET request to the '/search/:field' endpoint. The :field part in the endpoint is a route parameter that represents the search field value.
+
+// const user_search = req.params.field;: This line retrieves the search field value from the route parameter and assigns it to the user_search variable.
+
+// console.log(user_search);: This line logs the user_search value to the console.
+
+// const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
+
+// const snapshot = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. The result is stored in the snapshot variable.
+
+// let array = [];: This line initializes an empty array to store the matching documents.
+
+// snapshot.forEach((doc) => { ... }): This code iterates over each document in the snapshot using the forEach() method.
+//  For each document, the code compares the search field value (user_search) with a specific field in the document (in this case, the identification.city field).
+//  It calculates the similarity between the search field value and the document field value using the stringSimilarity.compareTwoStrings() function.
+
+
+// console.log(doc.data().identification.city);: This line logs the document's city field value to the console.
+
+// console.log(similarity);: This line logs the calculated similarity between the search field value and the document's city field value to the console.
+
+// if (similarity > 0.5) { array.push(doc.data()); }: 
+// This code checks if the calculated similarity is greater than a threshold value of 0.5. If the similarity is above the threshold, the document data is pushed into the array.
+
+// res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
+
+// catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
+app.get('/search_city/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		console.log(user_search);
+		const userRef = db.collection('users');
+		const snapshot = await userRef.get();
+
+		let array = [];
+		snapshot.forEach((doc) => {
+
+			console.log(doc.data().identification.city)
+			const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.city);
+			console.log(similarity)
+			if (similarity > 0.5) {
+				array.push(doc.data());
+			}
+		});
+		res.send(array);
+	} catch (error) {
+		res.send(error);
+	}
+});
 
 //   The updated code snippet includes a new route handler for the GET request to search for documents in the "users" collection in Firestore based on a provided email field.
 //  Here's an explanation of the code:
@@ -280,103 +280,103 @@ app.post("/create", async (req,res) => {
 // res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
 
 // catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
-      app.get('/email/:field', async (req, res) => {
-        try {
-          const user_search = req.params.field;
-          const userRef = db.collection('users');
-          const snapshot = await userRef.get();
-      
-          let array = [];
-          snapshot.forEach((doc) => {
-            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.email_identification);
-            console.log(similarity)
-            if (similarity >= 1.0) {
-              array.push(doc.data());
-            }
-          });
-          res.send(array);
-        } catch (error) {
-          res.send(error);
-        }
-      });
+app.get('/email/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('users');
+		const snapshot = await userRef.get();
 
-      // The updated code snippet includes a new route handler for the GET request to search for documents in the "users" collection in Firestore based on a provided search word.
-      //  Here's an explanation of the code:
+		let array = [];
+		snapshot.forEach((doc) => {
+			const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().identification.email_identification);
+			console.log(similarity)
+			if (similarity >= 1.0) {
+				array.push(doc.data());
+			}
+		});
+		res.send(array);
+	} catch (error) {
+		res.send(error);
+	}
+});
 
-      // app.get('/word/:field', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/word/:field' endpoint.
-      //  The :field part in the endpoint is a route parameter that represents the search word.
-      
-      // const user_search = req.params.field;: This line retrieves the search word from the route parameter and assigns it to the user_search variable.
-      
-      // user_search_lower = user_search.toLowerCase();: This line converts the search word to lowercase and assigns it to the user_search_lower variable. This ensures case-insensitive searching.
-      
-      // console.log(user_search);: This line logs the user_search value to the console.
-      
-      // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
-      
-      // const snapshot = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. The result is stored in the snapshot variable.
-      
-      // let array = [];: This line initializes an empty array to store the matching documents.
-      
-      // snapshot.forEach((doc) => { ... }): This code iterates over each document in the snapshot using the forEach() method.
-      //  For each document, it concatenates the relevant fields' values into a word string.
-      
-      // if (word.toLowerCase().includes(user_search_lower)) { array.push(doc.data()); }:
-    //  This code checks if the word string (containing concatenated field values) includes the search word (user_search_lower). 
-    // It performs a case-insensitive search. If the search word is found in the word string, the document data is pushed into the array.
-      
-      // res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
-      
-      // catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
-      app.get('/search_word/:field', async (req, res) => {
-        try {
-          const user_search = req.params.field;
+// The updated code snippet includes a new route handler for the GET request to search for documents in the "users" collection in Firestore based on a provided search word.
+//  Here's an explanation of the code:
 
-          if(user_search.length == 1){
-            throw error
-          }
-          user_search_lower = user_search.toLowerCase()
-          console.log(user_search);
-          const userRef = db.collection('users');
-          const snapshot = await userRef.get();
-      
-          let array = [];
-          snapshot.forEach((doc) => {
+// app.get('/word/:field', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/word/:field' endpoint.
+//  The :field part in the endpoint is a route parameter that represents the search word.
+
+// const user_search = req.params.field;: This line retrieves the search word from the route parameter and assigns it to the user_search variable.
+
+// user_search_lower = user_search.toLowerCase();: This line converts the search word to lowercase and assigns it to the user_search_lower variable. This ensures case-insensitive searching.
+
+// console.log(user_search);: This line logs the user_search value to the console.
+
+// const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
+
+// const snapshot = await userRef.get();: This line retrieves all the documents from the "users" collection using the get() method. The result is stored in the snapshot variable.
+
+// let array = [];: This line initializes an empty array to store the matching documents.
+
+// snapshot.forEach((doc) => { ... }): This code iterates over each document in the snapshot using the forEach() method.
+//  For each document, it concatenates the relevant fields' values into a word string.
+
+// if (word.toLowerCase().includes(user_search_lower)) { array.push(doc.data()); }:
+//  This code checks if the word string (containing concatenated field values) includes the search word (user_search_lower). 
+// It performs a case-insensitive search. If the search word is found in the word string, the document data is pushed into the array.
+
+// res.send(array);: After iterating through all the documents and finding the matching ones, the array containing the matching document data is sent as the response.
+
+// catch(error) { res.send(error); }: If an error occurs during the search process, the catch block is executed. The error message is sent as the response.
+app.get('/search_word/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+
+		if (user_search.length == 1) {
+			throw error
+		}
+		user_search_lower = user_search.toLowerCase()
+		console.log(user_search);
+		const userRef = db.collection('users');
+		const snapshot = await userRef.get();
+
+		let array = [];
+		snapshot.forEach((doc) => {
 
 
-            let word = ""
+			let word = ""
 
-            const facility = doc.data().identification.research_facillity;
-            const institution = doc.data().identification.institution_name;
-            const building = doc.data().identification.building_name;
-            const DESCRIPTION_OF_YOUR_FACILITY = doc.data().research.DESCRIPTION_OF_YOUR_FACILITY;
-            const areas_of_expertise = doc.data().research.areas_of_expertise;
-            const Research_services = doc.data().research.Research_services;
-            const DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
-            const PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
-            const Additional_information  = doc.data().research.Additional_information;
-            const research_fields = doc.data().Fields_of_research.fields;
-            const applications = doc.data().Sectors_of_application.applications;
+			const facility = doc.data().identification.research_facillity;
+			const institution = doc.data().identification.institution_name;
+			const building = doc.data().identification.building_name;
+			const DESCRIPTION_OF_YOUR_FACILITY = doc.data().research.DESCRIPTION_OF_YOUR_FACILITY;
+			const areas_of_expertise = doc.data().research.areas_of_expertise;
+			const Research_services = doc.data().research.Research_services;
+			const DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
+			const PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
+			const Additional_information = doc.data().research.Additional_information;
+			const research_fields = doc.data().Fields_of_research.fields;
+			const applications = doc.data().Sectors_of_application.applications;
 
-            let research_array = research_fields.toString().replace(/,/g, ' , ');
-            let application_array = applications.toString().replace(/,/g, ' , ');
+			let research_array = research_fields.toString().replace(/,/g, ' , ');
+			let application_array = applications.toString().replace(/,/g, ' , ');
 
-      
 
-            word += facility + " "+institution+ " "+building+" "+DESCRIPTION_OF_YOUR_FACILITY+
-            " "+areas_of_expertise+" "+Research_services+" "+DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE+" "+
-            PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS+" "+Additional_information+" "+application_array+" "+research_array
 
-            if (word.toLowerCase().includes(user_search_lower)) {
-              array.push(doc.data());
-            }
-    
-           });
-          res.send(array);
-        } catch (error) {
-          res.send(error);
-        }
-      });
+			word += facility + " " + institution + " " + building + " " + DESCRIPTION_OF_YOUR_FACILITY +
+				" " + areas_of_expertise + " " + Research_services + " " + DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE + " " +
+				PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS + " " + Additional_information + " " + application_array + " " + research_array
+
+			if (word.toLowerCase().includes(user_search_lower)) {
+				array.push(doc.data());
+			}
+
+		});
+		res.send(array);
+	} catch (error) {
+		res.send(error);
+	}
+});
 // this endpoint would be used to create the dashboard for the user, the user would be able to view all the forms for the lab he has submiited
 // This code defines an API endpoint for retrieving user data based on a search field. It expects a GET request to the /dashboard/:field URL, where :field represents the search field parameter.
 
@@ -394,25 +394,25 @@ app.post("/create", async (req,res) => {
 
 // If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
 
-      app.get('/dashboard/:field', async (req, res) => {
-        try {
-          const user_search = req.params.field;
-          const userRef = db.collection('users');
-          const snapshot = await userRef.get();
-      
-          let array = [];
-          snapshot.forEach((doc) => {
-            const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().user_unique_id);
-            console.log(similarity)
-            if (similarity >= 1.0) {
-              array.push(doc.data());
-            }
-          });
-          res.send(array);
-        } catch (error) {
-          res.send(error);
-        }
-      });
+app.get('/dashboard/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('users');
+		const snapshot = await userRef.get();
+
+		let array = [];
+		snapshot.forEach((doc) => {
+			const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().user_unique_id);
+			console.log(similarity)
+			if (similarity >= 1.0) {
+				array.push(doc.data());
+			}
+		});
+		res.send(array);
+	} catch (error) {
+		res.send(error);
+	}
+});
 
 //  this endpoint is able to create signup for the any user whether being the lab provider or client.
 // This code defines an API endpoint for signing up a facility user. It expects a POST request to the /facility/signup URL, where the user information is sent in the request body.
@@ -427,32 +427,32 @@ app.post("/create", async (req,res) => {
 // Finally, the code sends the user response object as a JSON response using res.json(userResponse).
 
 // If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
-      app.post("/facility/signup", async (req, res) => {
-        try {
-          const user = {
-            first_name: req.body.first_name,
-            last_name:  req.body.last_name,
-            email: req.body.email,
-            password: req.body.password
-          };
-      
-          const userResponse = await admin.auth().createUser({
-            email: user.email,
-            password: user.password,
-            emailVerified: false,
-            disabled: false
-          });
+app.post("/facility/signup", async (req, res) => {
+	try {
+		const user = {
+			first_name: req.body.first_name,
+			last_name: req.body.last_name,
+			email: req.body.email,
+			password: req.body.password
+		};
 
-          console.log(userResponse.displayName)
-      
-          res.json(userResponse);
-        } catch (error) {
-          res.send(error);
-        }
-      });
+		const userResponse = await admin.auth().createUser({
+			email: user.email,
+			password: user.password,
+			emailVerified: false,
+			disabled: false
+		});
 
-      // using this endpoint the user is able to create order, 
-      // which would contain the both the user and client as well as the info for lab request 
+		console.log(userResponse.displayName)
+
+		res.json(userResponse);
+	} catch (error) {
+		res.send(error);
+	}
+});
+
+// using this endpoint the user is able to create order, 
+// which would contain the both the user and client as well as the info for lab request 
 //       This code defines an API endpoint for creating an order. It expects a POST request to the /create/order URL, where the order information is sent in the request body.
 
 // When a request is received, the code extracts the order information (ucid_sent, ucid_received, information, cost, date, status) from the request body.
@@ -462,50 +462,50 @@ app.post("/create", async (req,res) => {
 // Finally, the code sends the created order object as a JSON response using res.json(labjson).
 
 // If an error occurs during the process, the error is caught in the catch block, and the error message is sent as the response using res.send(error).
-    
-      app.post("/create/order", async (req,res) => {
-        try {
-          const labjson = {
 
-            ucid_sent: req.body.ucid_sent,
-            ucid_recieved: req.body.ucid_recieved,
-            information: req.body.information,
-            cost: req.body.cost,
-            date: req.body.date,
-            status: req.body.status
-            
-        }
-        // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
-        // The labjson object is saved as the document data.
-        const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-        await db.collection('orders').doc(id).set(labjson);
-            res.send(response);
-        }
-        catch(error) {
-            res.send(error)
-        }
-        });
+app.post("/create/order", async (req, res) => {
+	try {
+		const labjson = {
 
-        app.get('/userinfo/:field', async (req, res) => {
-          try {
-            const user_search = req.params.field;
-            const userRef = db.collection('info');
-            const snapshot = await userRef.get();
-        
-            let array = [];
-            snapshot.forEach((doc) => {
-              const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid);
-              console.log(similarity)
-              if (similarity >= 1.0) {
-                array.push(doc.data());
-              }
-            });
-            res.send(array);
-          } catch (error) {
-            res.send(error);
-          }
-        });
-  //  this endpoint is used to sent post request to create data for the individual user 
+			ucid_sent: req.body.ucid_sent,
+			ucid_recieved: req.body.ucid_recieved,
+			information: req.body.information,
+			cost: req.body.cost,
+			date: req.body.date,
+			status: req.body.status
+
+		}
+		// This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+		// The labjson object is saved as the document data.
+		const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
+		await db.collection('orders').doc(id).set(labjson);
+		res.send(response);
+	}
+	catch (error) {
+		res.send(error)
+	}
+});
+
+app.get('/userinfo/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('info');
+		const snapshot = await userRef.get();
+
+		let array = [];
+		snapshot.forEach((doc) => {
+			const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid);
+			console.log(similarity)
+			if (similarity >= 1.0) {
+				array.push(doc.data());
+			}
+		});
+		res.send(array);
+	} catch (error) {
+		res.send(error);
+	}
+});
+//  this endpoint is used to sent post request to create data for the individual user 
 //   This code defines an API endpoint for retrieving user information based on a search field. It expects a GET request to the /userinfo/:field URL, where :field represents the search field parameter.
 
 // When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "info" collection in the database using db.collection('info').
@@ -524,25 +524,25 @@ app.post("/create", async (req,res) => {
 
 // Please note that this documentation assumes the presence and proper configuration of the required dependencies, such as the db object for database connectivity and the stringSimilarity library for string comparison.
 
-        app.post("/create/info", async (req,res) => {
-          try {
-            
-            const labjson = {
-              ucid: req.body.ucid,
-              first_name: req.body.first_name,
-              last_name: req.body.last_name,
-              user_name: req.body.user_name
-          }
-          // This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
-          // The labjson object is saved as the document data.
-          const id = req.body.ucid;
-          await db.collection('info').doc(id).set(labjson);
-              res.send(response);
-          }
-          catch(error) {
-              res.send(error)
-          }
-          });
+app.post("/create/info", async (req, res) => {
+	try {
+
+		const labjson = {
+			ucid: req.body.ucid,
+			first_name: req.body.first_name,
+			last_name: req.body.last_name,
+			user_name: req.body.user_name
+		}
+		// This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
+		// The labjson object is saved as the document data.
+		const id = req.body.ucid;
+		await db.collection('info').doc(id).set(labjson);
+		res.send(response);
+	}
+	catch (error) {
+		res.send(error)
+	}
+});
 //  this endpoint is used to retrive all the forms that had been sent by the user
 // This code defines an API endpoint for retrieving sent orders based on a search field. It expects a GET request to the /orders/sent/:field URL, where :field represents the search field parameter.
 
@@ -559,26 +559,26 @@ app.post("/create", async (req,res) => {
 
 // Please note that this documentation assumes the presence and proper configuration of the required dependencies, such as the db object for database connectivity.
 
-        app.get('/orders/sent/:field', async (req, res) => {
-          try {
-            const user_search = req.params.field;
-            const userRef = db.collection('orders');
-            const snapshot = await userRef.get();
-        
-            let array = [];
-            snapshot.forEach((doc) => {
-              const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
-              console.log(similarity)
-              if (similarity >= 1.0) {
-                array.push(doc.data());
-              }
-            });
-            res.send(array);
-          } catch (error) {
-            res.send(error);
-          }
-        });
-        //   this endpoint is used to retrive all the forms that had been recieved by the user
+app.get('/orders/sent/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('orders');
+		const snapshot = await userRef.get();
+
+		let array = [];
+		snapshot.forEach((doc) => {
+			const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_sent);
+			console.log(similarity)
+			if (similarity >= 1.0) {
+				array.push(doc.data());
+			}
+		});
+		res.send(array);
+	} catch (error) {
+		res.send(error);
+	}
+});
+//   this endpoint is used to retrive all the forms that had been recieved by the user
 //         This code defines an API endpoint for retrieving received orders based on a search field. It expects a GET request to the /orders/received/:field URL, where :field represents the search field parameter.
 
 // When a request is received, the code retrieves the search field from the request parameters using req.params.field. It then creates a reference to the "orders" collection in the database using db.collection('orders').
@@ -592,71 +592,111 @@ app.post("/create", async (req,res) => {
 // If the similarity score is equal to or greater than 1.0 (an exact match), the received order data (doc.data()) is added to the array.
 
 // After iterating through all the documents, the code sends the array of matching received order objects as the response using res.send(array).
-        app.get('/orders/received/:field', async (req, res) => {
-          try {
-            const user_search = req.params.field;
-            const userRef = db.collection('orders');
-            const snapshot = await userRef.get();
-        
-            let array = [];
-            snapshot.forEach((doc) => {
-              const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_recieved);
-              console.log(similarity)
-              if (similarity >= 1.0) {
-                array.push(doc.data());
-              }
-            });
-            res.send(array);
-          } catch (error) {
-            res.send(error);
-          }
-        });
+app.get('/orders/received/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('orders');
+		const snapshot = await userRef.get();
 
-        app.post('/payment-intent', async (req, res) => {
-          try {
-            const { amount, currency, description } = req.body;
-        
-            const paymentIntent = await stripe.paymentIntents.create({
-              amount,
-              currency,
-              description,
-            });
-        
-            res.send({
-              clientSecret: paymentIntent.client_secret,
-            });
-          } catch (error) {
-            res.status(500).send({ error: error.message });
-          }
-        });
+		let array = [];
+		snapshot.forEach((doc) => {
+			const similarity = stringSimilarity.compareTwoStrings(user_search, doc.data().ucid_recieved);
+			console.log(similarity)
+			if (similarity >= 1.0) {
+				array.push(doc.data());
+			}
+		});
+		res.send(array);
+	} catch (error) {
+		res.send(error);
+	}
+});
 
-app.get("/home", (req,res) => {
+app.post('/payment-intent', async (req, res) => {
+	try {
+		const { amount, currency, description } = req.body;
 
-    res.send("Hello we are Lab2Client Team")
+		const paymentIntent = await stripe.paymentIntents.create({
+			amount,
+			currency,
+			description,
+		});
+
+		res.send({
+			clientSecret: paymentIntent.client_secret,
+		});
+	} catch (error) {
+		res.status(500).send({ error: error.message });
+	}
+});
+
+app.get("/home", (req, res) => {
+
+	res.send("Hello we are Lab2Client Team")
 
 })
 
-app.get('/getequipment/:id', async (req,res) => {
+app.get('/getequipment/:id', async (req, res) => {
 
-  try {
-    const docId = req.params.id;
-    const docRef = db.collection('users').doc(docId);
-    const doc = await docRef.get();
+	try {
+		const docId = req.params.id;
+		const docRef = db.collection('users').doc(docId);
+		const doc = await docRef.get();
 
-    if (!doc.exists) {
-      return res.status(404).send('Document not found');
-    }
+		if (!doc.exists) {
+			return res.status(404).send('Document not found');
+		}
 
-    // Return the document data as the API response
-    res.json(doc.data().lab_equipment);
-  } catch (error) {
-    console.error('Error retrieving document:', error);
-    res.status(500).send('Internal Server Error');
-  }
-    
+		// Return the document data as the API response
+		res.json(doc.data().lab_equipment);
+	} catch (error) {
+		console.error('Error retrieving document:', error);
+		res.status(500).send('Internal Server Error');
+	}
+
 });
 
-app.listen(process.env.PORT || 5000,() => {
+app.post("/stripe/create/user", async (req, res) => {
+	try {
+		const customer = await stripe.customers.create({
+			name: req.body.name,
+			email: req.body.email,
+			description: 'L2C test customer',
+		});
 
-    console.log('http://localhost:5000/')
+		res.send(customer);
+	}
+	catch (error) {
+		res.send(error)
+	}
+});
+
+app.post("/stripe/create/invoice", async (req, res) => {
+	try {
+		const invoice = await stripe.invoices.create({
+			customer: req.body.customer,
+			collection_method: "send_invoice",
+			days_until_due: 5
+		});
+
+		await stripe.invoiceItems.create({
+			customer: req.body.customer,
+			amount: req.body.amount,
+			invoice: invoice.id
+		});
+
+		await stripe.invoices.sendInvoice(
+			invoice.id
+		);
+
+		res.send(invoice);
+	}
+	catch (error) {
+		res.send(error)
+	}
+});
+
+app.listen(process.env.PORT || 3100, () => {
+
+	console.log('http://localhost:3100/')
 })
