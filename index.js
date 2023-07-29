@@ -653,7 +653,7 @@ app.post("/stripe/create/user", async (req, res) => {
 		const customer = await stripe.customers.create({
 		  name: req.body.name,
 		  email: email,
-		  description: 'L2C customer',
+		  description: 'L2C Customer',
 		});
 		res.send(customer);
 	  }
