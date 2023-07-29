@@ -17,7 +17,7 @@ const express = require('express');
 const app = express();
 var cors = require('cors')
 var crypto = require('crypto');
-const stripe = require('stripe')('sk_test_51NB2f5L5vejuzwJ3NTgtAZPIw9WyY8rE817oV6bpYcZGqxr67VYm7a7gfVUFRL6MjH0zXwKStVdjOAF51lpb1XcH00W2mzJDQj');
+const stripe = require('stripe')('sk_test_51NMaMTIprkPPYKcJ9uAibY8qhRuNj9DDTHtbeIjHKyYja44g55tx7Fld0jdF9C3qF5XTTevvDDeEIIBGk0JjfLXG00pCyx03Wt');
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
@@ -611,24 +611,7 @@ app.get('/orders/received/:field', async (req, res) => {
 		res.send(error);
 	}
 });
-
-app.post('/payment-intent', async (req, res) => {
-	try {
-		const { amount, currency, description } = req.body;
-
-		const paymentIntent = await stripe.paymentIntents.create({
-			amount,
-			currency,
-			description,
-		});
-
-		res.send({
-			clientSecret: paymentIntent.client_secret,
-		});
-	} catch (error) {
-		res.status(500).send({ error: error.message });
-	}
-});
+ 
 
 app.get("/home", (req, res) => {
 
@@ -658,18 +641,27 @@ app.get('/getequipment/:id', async (req, res) => {
 
 app.post("/stripe/create/user", async (req, res) => {
 	try {
-		const customer = await stripe.customers.create({
-			name: req.body.name,
-			email: req.body.email,
-			description: 'L2C test customer',
-		});
-
+	  const email = req.body.email;
+  
+	  // Check if a customer with the given email already exists
+	  const existingCustomer = await stripe.customers.list({ email: email, limit: 1 });
+  
+	  if (existingCustomer.data.length > 0) {
+		const customer = existingCustomer.data[0];
 		res.send(customer);
+	  } else {
+		const customer = await stripe.customers.create({
+		  name: req.body.name,
+		  email: email,
+		  description: 'L2C customer',
+		});
+		res.send(customer);
+	  }
+	} catch (error) {
+	  res.status(500).send(error.message);
 	}
-	catch (error) {
-		res.send(error)
-	}
-});
+  });
+  
 
 app.post("/stripe/create/invoice", async (req, res) => {
 	try {
