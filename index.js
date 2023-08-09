@@ -102,7 +102,7 @@ app.post("/create", async (req, res) => {
 		// This line uses the db Firestore instance to access the "users" collection and creates a new document with the generated id as the document ID. 
 		// The labjson object is saved as the document data.
 		const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
-		labjson[id] = id;
+		labjson["id"] = id;
 		await db.collection('users').doc(id).set(labjson);
 		res.send(response);
 	}
