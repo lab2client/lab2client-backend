@@ -688,6 +688,27 @@ app.post("/stripe/create/invoice", async (req, res) => {
 	}
 });
 
+app.put("/updatelab/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const labRef = db.collection('users').doc(id);
+
+		const existingLabData = await labRef.get();
+		if (!existingLabData.exists) {
+			return res.status(404).send("Lab data not found");
+		}
+
+		const updateData = req.body; // Assuming the request body contains the updated fields
+
+		await labRef.update(updateData);
+
+		res.send("Lab data updated successfully");
+	} catch (error) {
+		res.status(500).send(error.message);
+	}
+});
+
+
 app.listen(process.env.PORT || 3100, () => {
 
 	console.log('http://localhost:3100/')
