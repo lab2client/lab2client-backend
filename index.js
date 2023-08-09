@@ -612,23 +612,6 @@ app.post("/create", async (req,res) => {
           }
         });
 
-        app.post('/payment-intent', async (req, res) => {
-          try {
-            const { amount, currency, description } = req.body;
-        
-            const paymentIntent = await stripe.paymentIntents.create({
-              amount,
-              currency,
-              description,
-            });
-        
-            res.send({
-              clientSecret: paymentIntent.client_secret,
-            });
-          } catch (error) {
-            res.status(500).send({ error: error.message });
-          }
-        });
 
 app.get("/home", (req,res) => {
 
@@ -655,6 +638,30 @@ app.get('/getequipment/:id', async (req,res) => {
   }
     
 });
+
+
+app.post("/stripe/create/user", async (req, res) => {
+	try {
+	  const email = req.body.email;
+  
+	  // Check if a customer with the given email already exists
+	  const existingCustomer = await stripe.customers.list({ email: email, limit: 1 });
+  
+	  if (existingCustomer.data.length > 0) {
+		const customer = existingCustomer.data[0];
+		res.send(customer);
+	  } else {
+		const customer = await stripe.customers.create({
+		  name: req.body.name,
+		  email: email,
+		  description: 'L2C Customer',
+		});
+		res.send(customer);
+	  }
+	} catch (error) {
+	  res.status(500).send(error.message);
+	}
+  });
 
 app.listen(process.env.PORT || 5000,() => {
 
