@@ -612,7 +612,7 @@ app.get('/orders/received/:field', async (req, res) => {
 		res.send(error);
 	}
 });
- 
+
 
 app.get("/home", (req, res) => {
 
@@ -640,40 +640,39 @@ app.get('/getequipment/:id', async (req, res) => {
 
 });
 
-app.post("/stripe/create/user", async (req, res) => {
+app.post("/stripe/invoice", async (req, res) => {
 	try {
-	  const email = req.body.email;
-  
-	  // Check if a customer with the given email already exists
-	  const existingCustomer = await stripe.customers.list({ email: email, limit: 1 });
-  
-	  if (existingCustomer.data.length > 0) {
-		const customer = existingCustomer.data[0];
-		res.send(customer);
-	  } else {
-		const customer = await stripe.customers.create({
-		  name: req.body.name,
-		  email: email,
-		  description: 'L2C Customer',
-		});
-		res.send(customer);
-	  }
-	} catch (error) {
-	  res.status(500).send(error.message);
-	}
-  });
-  
+		const email = req.body.email;
+		let customer;
 
-app.post("/stripe/create/invoice", async (req, res) => {
-	try {
+		// Check if a customer with the given email already exists
+		const existingCustomer = await stripe.customers.list({ email: email, limit: 1 });
+
+		if (existingCustomer.data.length > 0) {
+			customer = existingCustomer.data[0];
+		} else {
+			customer = await stripe.customers.create({
+				name: req.body.name,
+				email: email,
+				description: 'L2C Customer',
+			});
+		}
+
+		// const paymentIntent = await stripe.paymentIntents.create({
+		// 	amount: req.body.amount,
+		// 	currency: 'cad',
+		// 	customer: customer.id
+		// });
+
 		const invoice = await stripe.invoices.create({
-			customer: req.body.customer,
+			customer: customer.id,
 			collection_method: "send_invoice",
-			days_until_due: 5
+			days_until_due: 5,
+			// payment_intent: paymentIntent.id
 		});
 
 		await stripe.invoiceItems.create({
-			customer: req.body.customer,
+			customer: customer.id,
 			amount: req.body.amount,
 			invoice: invoice.id
 		});
@@ -683,10 +682,14 @@ app.post("/stripe/create/invoice", async (req, res) => {
 		);
 
 		res.send(invoice);
+	} catch (error) {
+		res.status(500).send(error.message);
 	}
-	catch (error) {
-		res.send(error)
-	}
+});
+
+
+app.post("/stripe/create/invoice", async (req, res) => {
+
 });
 
 app.put("/updatelab/:id", async (req, res) => {
@@ -711,6 +714,5 @@ app.put("/updatelab/:id", async (req, res) => {
 
 
 app.listen(process.env.PORT || 3100, () => {
-
 	console.log('http://localhost:3100/')
 })
