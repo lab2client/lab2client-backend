@@ -712,6 +712,29 @@ app.put("/updatelab/:id", async (req, res) => {
 	}
 });
 
+app.get('payment/balance', async (req, res) => {
+
+		try {
+		const email = req.body.email;
+		let customer;
+		const existingCustomer = await stripe.customers.list({ email: email, limit: 1 });
+
+		if (existingCustomer.data.length > 0) {
+			customer = existingCustomer.data[0];
+		}
+	  const customerId = customer.id; 
+  
+	  const customer1 = await stripe.customers.retrieve(customerId);
+	  const balance = customer1.balance;
+	  res.json({ balance: balance });
+	  
+	} catch (error) {
+	  // Handle any errors
+	  console.error(error);
+	  res.status(500).json({ error: 'Failed to retrieve balance' });
+	}
+  });
+
 
 app.listen(process.env.PORT || 3100, () => {
 	console.log('http://localhost:3100/')
