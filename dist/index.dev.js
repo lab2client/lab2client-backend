@@ -24,6 +24,8 @@ var admin = require("firebase-admin");
 
 var credentials = require('./key.json');
 
+const stripeWebhookSecret = 'your_webhook_secret'; // Replace with your actual webhook secret from Stripe
+
 admin.initializeApp({
   credential: admin.credential.cert(credentials)
 });
@@ -761,6 +763,62 @@ app.get('/orders/received/:field', function _callee14(req, res) {
     }
   }, null, null, [[0, 11]]);
 });
+
+/*create a new db and store the transactions.
+  Transactions Detail:
+  Currency
+  ResearchLabName
+  Description
+
+  Firestore, name payments,
+  name and id of receiver and sender
+  currency 
+  amount 
+  payment-id
+*/
+
+
+// Define a route to handle incoming Stripe webhooks
+app.post('/stripe-webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const sig = req.headers['stripe-signature'];
+
+  try {
+    const event = stripe.webhooks.constructEvent(req.body, sig, stripeWebhookSecret);
+
+    // Handle different types of Stripe webhook events
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        // Extract payment information from the event
+        const payment = event.data.object;
+        const currency = payment.currency;
+        const senderName = payment.metadata.senderName;
+        const receiverName = payment.metadata.receiverName;
+        const amount = payment.amount / 100; // Convert from cents to dollars
+        const paymentId = payment.id;
+
+        // Create an object to store in the Firestore database
+        const paymentData = {
+          currency,
+          senderName,
+          receiverName,
+          amount
+        };
+
+        // Store payment information in the Firestore database
+        db.collection('transactions').add(paymentData);
+
+        res.status(200).end(); // Respond to the webhook with a 200 OK status
+        break;
+
+      default:
+        res.status(400).send('Unhandled event type');
+    }
+  } catch (error) {
+    console.error('Error handling Stripe webhook:', error);
+    res.status(400).send('Webhook Error');
+  }
+});
+
 app.post('/payment-intent', function _callee15(req, res) {
   var _req$body, amount, currency, description, paymentIntent;
 
