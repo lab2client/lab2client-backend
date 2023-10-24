@@ -21,7 +21,8 @@ const stripe = require('stripe')('sk_test_51NMaMTIprkPPYKcJ9uAibY8qhRuNj9DDTHtbe
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
-
+const stripeWebhookSecret = 'whsec_ToSEYibnMqWxWXZYrIox7u8OutnSSbwK'; 
+const nodemailer = require('nodemailer');
 
 
 admin.initializeApp({
@@ -34,10 +35,27 @@ app.use(cors());
 // This middleware is used to parse incoming requests with JSON payloads.
 //  It allows you to access the request body as a JavaScript object. 
 // It is typically used when expecting JSON data in the request body.
-app.use(express.json());
-// This middleware is used to parse incoming requests with URL-encoded payloads. 
-// It allows you to access the request body as key-value pairs. The extended: true option enables the parsing of rich objects and arrays.
-app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+	if (req.originalUrl === '/stripe-webhook') {
+	  // Skip parsing for the Stripe webhook route
+	  next();
+	} else {
+	  // Parse JSON and URL-encoded payloads for other routes
+	  express.json()(req, res, next);
+	}
+  });
+
+  app.use((req, res, next) => {
+	if (req.originalUrl === '/stripe-webhook') {
+	  // Skip parsing for the Stripe webhook route
+	  next();
+	} else {
+	  // Parse JSON and URL-encoded payloads for other routes
+	  express.urlencoded({ extended: true })(req, res, next);
+	}
+  });
+
+
 //  This code initializes a Firestore instance using the admin object.
 //  It suggests that you are using Firebase Admin SDK to interact with Firestore, which is a NoSQL document database provided by Firebase.
 const db = admin.firestore();
@@ -614,6 +632,99 @@ app.get('/orders/received/:field', async (req, res) => {
 });
 
 
+
+
+// Create a nodemailer transporter
+const transporter = nodemailer.createTransport({
+	service: 'Gmail', // e.g., 'Gmail' for Gmail
+	auth: {
+	  user: 'l2cpaymentnotification@gmail.com', // your email address
+	  pass: 'oxqc qkfc tnrh orji', // your email password
+	},
+  });
+
+
+// Define a route to handle incoming Stripe webhooks
+app.post('/stripe-webhook', express.raw({type: 'application/json'}), (req, res) => {
+	try {
+	  const sig = req.headers['stripe-signature'];
+      
+	  let event;
+	  event = stripe.webhooks.constructEvent(req.body, sig, stripeWebhookSecret);
+  
+	  
+
+	  // Handle different types of Stripe webhook events
+	  switch (event.type) {
+		case 'invoice.paid': // Use the 'invoice.paid' event to capture the payment of an invoice
+		  // Extract invoice information from the event
+		  const currency = event.data.object.currency;
+		  const customerId = event.data.object.customer;
+		  const amount = event.data.object.amount_paid; // Convert from cents to dollars
+		  const name = event.data.object.customer_name;
+		  // Get the LabID from the invoice's metadata
+		  const labOwnerEmail = event.data.object.lines.data[0].metadata.labOwnerEmail;
+          const cuID = event.data.object.lines.data[0].metadata.cuID; 
+
+		  // Create an object to store in the Firestore database
+		  const paymentData = {
+			currency,
+			customerId,
+			amount,
+            labOwnerEmail,
+			cuID,
+			name
+		  };
+	
+		  // Send an email to labOwnerEmail
+		  sendEmailToLabOwner(paymentData);
+  
+		  // Store payment information in the Firestore database
+		  db.collection('transactions').add(paymentData);
+  
+		  res.status(200).end(); // Respond to the webhook with a 200 OK status
+		  break;
+  
+		default:
+		  res.status(400).send('Unhandled event type');
+	  }
+	} catch (error) {
+	  console.error('Error handling Stripe webhook:', error);
+	  res.status(400).send('Webhook Error');
+	}
+  });
+
+    // Function to send an email to labOwnerEmail
+	function sendEmailToLabOwner(paymentData) {
+		const mailOptions = {
+			from: 'l2cpaymentnotification@gmail.com',
+			to: paymentData.labOwnerEmail,
+			subject: 'Payment Notification',
+			html: `
+            <html>
+			<body>
+			  <p>Dear Lab Owner,</p>
+			  <p>A payment has been received from your customer, ${paymentData.name}.</p>
+			  <p>Amount: ${paymentData.amount / 100} ${paymentData.currency}</p>
+			  <p>Status: Paid</p>
+			  <p>Thank you for using Lab2Client!</p>
+			  <p>Sincerely,<br/>Lab2Client</p>
+			</body>
+			</html>
+			`,
+		  };
+	
+		transporter.sendMail(mailOptions, (error, info) => {
+		if (error) {
+			console.error('Error sending email:', error);
+		} else {
+			console.log('Email sent:', info.response);
+		}
+		});
+	}
+  
+  
+
 app.get("/home", (req, res) => {
 
 	res.send("Hello we are Lab2Client Team")
@@ -646,6 +757,7 @@ app.post("/stripe/invoice", async (req, res) => {
 		let customer;
 
 		// Check if a customer with the given email already exists
+		// 
 		const existingCustomer = await stripe.customers.list({ email: email, limit: 1 });
 
 		if (existingCustomer.data.length > 0) {
@@ -662,19 +774,27 @@ app.post("/stripe/invoice", async (req, res) => {
 		// 	amount: req.body.amount,
 		// 	currency: 'cad',
 		// 	customer: customer.id
+		//  LabOwnerEmail,
+		//  cuID - Unique Lab Identifier.
+		//  Send notification to lab owner, Unique Lab Identifier, Payment Status
 		// });
+
+
 
 		const invoice = await stripe.invoices.create({
 			customer: customer.id,
 			collection_method: "send_invoice",
 			days_until_due: 5,
-			// payment_intent: paymentIntent.id
 		});
 
 		await stripe.invoiceItems.create({
 			customer: customer.id,
 			amount: req.body.amount,
-			invoice: invoice.id
+			invoice: invoice.id,
+			metadata: {
+				labOwnerEmail: req.body.LabOwnerEmail,
+				cuID: req.body.cuID
+			}
 		});
 
 		await stripe.invoices.sendInvoice(
