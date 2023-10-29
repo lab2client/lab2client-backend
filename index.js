@@ -856,6 +856,27 @@ app.get('payment/balance', async (req, res) => {
   });
 
 
+  app.get('/getpayment/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('transactions');
+		const snapshot = await userRef.where('customerId', '==', user_search).get();
+	
+		let array = [];
+		snapshot.forEach((doc) => {
+			array.push(doc.data());
+		});
+	
+		res.send(array);
+	} catch (error) {
+		res.status(500).send(error);
+	}
+	
+});
+
+
+
+
 app.listen(process.env.PORT || 3100, () => {
 	console.log('http://localhost:3100/')
 })
