@@ -856,11 +856,29 @@ app.get('payment/balance', async (req, res) => {
   });
 
 
-  app.get('/getpayment/:field', async (req, res) => {
+  app.get('/recievedpayment/:field', async (req, res) => {
 	try {
 		const user_search = req.params.field;
 		const userRef = db.collection('transactions');
 		const snapshot = await userRef.where('customerId', '==', user_search).get();
+	
+		let array = [];
+		snapshot.forEach((doc) => {
+			array.push(doc.data());
+		});
+	
+		res.send(snapshot);
+	} catch (error) {
+		res.status(500).send(error);
+	}
+	
+});
+
+app.get('/payment/sent/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('transactions');
+		const snapshot = await userRef.where('user_id', '==', user_search).get();
 	
 		let array = [];
 		snapshot.forEach((doc) => {
@@ -874,6 +892,23 @@ app.get('payment/balance', async (req, res) => {
 	
 });
 
+app.get('/payment/received/:field', async (req, res) => {
+	try {
+		const user_search = req.params.field;
+		const userRef = db.collection('transactions');
+		const snapshot = await userRef.where('lab_owner_id', '==', user_search).get();
+	
+		let array = [];
+		snapshot.forEach((doc) => {
+			array.push(doc.data());
+		});
+	
+		res.send(array);
+	} catch (error) {
+		res.status(500).send(error);
+	}
+	
+});
 
 
 
