@@ -659,23 +659,25 @@ app.post('/stripe-webhook', express.raw({type: 'application/json'}), (req, res) 
 		case 'invoice.paid': // Use the 'invoice.paid' event to capture the payment of an invoice
 		  // Extract invoice information from the event
 		  const currency = event.data.object.currency;
-		  const customerId = event.data.object.customer;
+		  const user_id = event.data.object.customer;
 		  const amount = event.data.object.amount_paid; // Convert from cents to dollars
-		  const name = event.data.object.customer_name;
 		  // Get the LabID from the invoice's metadata
-		  const labOwnerEmail = event.data.object.lines.data[0].metadata.labOwnerEmail;
-          const cuID = event.data.object.lines.data[0].metadata.cuID; 
+		  const lab_owner_email = event.data.object.lines.data[0].metadata.lab_owner_email; 
+          const user_email = event.data.object.lines.data[0].metadata.user_email; 
+          const date = new Date();
+		  const lab_owner_id = event.data.object.lines.data[0].metadata.lab_owner_id;
 
 		  // Create an object to store in the Firestore database
 		  const paymentData = {
 			currency,
-			customerId,
-			amount,
-            labOwnerEmail,
-			cuID,
-			name
+			user_id,
+			lab_owner_email,
+            amount,
+            lab_owner_id,
+			user_email,
+			date
 		  };
-	
+
 		  // Send an email to labOwnerEmail
 		  sendEmailToLabOwner(paymentData);
   
@@ -724,11 +726,8 @@ app.post('/stripe-webhook', express.raw({type: 'application/json'}), (req, res) 
 	}
   
   
-
 app.get("/home", (req, res) => {
-
 	res.send("Hello we are Lab2Client Team")
-
 })
 
 app.get('/getequipment/:id', async (req, res) => {
@@ -770,17 +769,6 @@ app.post("/stripe/invoice", async (req, res) => {
 			});
 		}
 
-		// const paymentIntent = await stripe.paymentIntents.create({
-		// 	amount: req.body.amount,
-		// 	currency: 'cad',
-		// 	customer: customer.id
-		//  LabOwnerEmail,
-		//  cuID - Unique Lab Identifier.
-		//  Send notification to lab owner, Unique Lab Identifier, Payment Status
-		// });
-
-
-
 		const invoice = await stripe.invoices.create({
 			customer: customer.id,
 			collection_method: "send_invoice",
@@ -792,8 +780,9 @@ app.post("/stripe/invoice", async (req, res) => {
 			amount: req.body.amount,
 			invoice: invoice.id,
 			metadata: {
-				labOwnerEmail: req.body.LabOwnerEmail,
-				cuID: req.body.cuID
+				lab_owner_email: req.body.lab_owner_email,
+				user_email: req.body.user_email,
+				lab_owner_id: req.body.lab_owner_id,
 			}
 		});
 
