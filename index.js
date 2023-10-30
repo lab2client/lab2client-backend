@@ -781,7 +781,7 @@ app.post("/stripe/invoice", async (req, res) => {
 			invoice: invoice.id,
 			metadata: {
 				lab_owner_email: req.body.lab_owner_email,
-				user_email: req.body.user_email,
+				user_email: email,
 				lab_owner_id: req.body.lab_owner_id,
 			}
 		});
