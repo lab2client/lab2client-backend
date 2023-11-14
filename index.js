@@ -12,7 +12,6 @@
 // admin.initializeApp({...}): The Firebase Admin SDK is initialized with the provided credentials file (key.json). 
 // This step is necessary to authenticate and authorize administrative access to Firebase services.
 
-
 const express = require('express');
 const app = express();
 var cors = require('cors')
@@ -135,7 +134,6 @@ app.post("/create", async (req, res) => {
 	  }
 });
 
-// this is the endpoint to upload the picture 
 app.post('/upload_picture', async (req, res) => {
 	try {
 	  if (!req.files || !req.files.file) {
