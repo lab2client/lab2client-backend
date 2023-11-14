@@ -134,7 +134,6 @@ app.post("/create", async (req, res) => {
 	  }
 });
 
-
 app.post('/upload_picture', async (req, res) => {
 	try {
 	  if (!req.files || !req.files.file) {
@@ -173,6 +172,7 @@ app.post('/upload_picture', async (req, res) => {
 	  res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
 	}
   });
+
 // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
 
 // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
