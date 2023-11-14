@@ -16,6 +16,7 @@
 const express = require('express');
 const app = express();
 var cors = require('cors')
+const fileUpload = require('express-fileupload');
 var crypto = require('crypto');
 const stripe = require('stripe')('sk_test_51NMaMTIprkPPYKcJ9uAibY8qhRuNj9DDTHtbeIjHKyYja44g55tx7Fld0jdF9C3qF5XTTevvDDeEIIBGk0JjfLXG00pCyx03Wt');
 var stringSimilarity = require("string-similarity");
@@ -29,6 +30,7 @@ admin.initializeApp({
 	credential: admin.credential.cert(credentials)
 });
 
+app.use(fileUpload());
 app.use(cors());
 
 
@@ -59,10 +61,13 @@ app.use((req, res, next) => {
 //  This code initializes a Firestore instance using the admin object.
 //  It suggests that you are using Firebase Admin SDK to interact with Firestore, which is a NoSQL document database provided by Firebase.
 const db = admin.firestore();
+const storage = admin.storage();
+const bucket = storage.bucket('gs://lab2client.appspot.com'); 
 // This API endpoint (POST /create) is used to create a new lab document in the system. It expects a JSON payload in the request body with the following properties
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 app.post("/create", async (req, res) => {
 	try {
+	
 		const labjson = {
 			user_unique_id: req.body.user_unique_id,
 			identification: {
@@ -122,13 +127,53 @@ app.post("/create", async (req, res) => {
 		const id = crypto.createHash('sha256').update(JSON.stringify(labjson)).digest('hex');
 		labjson["id"] = id;
 		await db.collection('users').doc(id).set(labjson);
-		res.send(response);
+		res.send("uploaded sucessfully");
 	}
 	catch (error) {
-		res.send(error)
-	}
+		console.error(error); // Log the error for debugging purposes
+		res.status(500).send("Internal Server Error"); // Send a generic error response
+	  }
 });
 
+
+app.post('/upload_picture', async (req, res) => {
+	try {
+	  if (!req.files || !req.files.file) {
+		return res.status(400).json({ error: 'No file uploaded' });
+	  }
+  
+	  const fileBuffer = req.files.file.data; // Access the file data from the request
+  
+	  const uniqueFilename = `${Date.now()}_${crypto.randomBytes(16).toString('hex')}.jpg`;
+  
+	  const fileUpload = bucket.file(uniqueFilename);
+	  const metadata = {
+		contentType: 'images',
+	  };
+  
+	  const fileStream = fileUpload.createWriteStream({
+		metadata,
+		resumable: false, // Disable resumable uploads
+	  });
+  
+	  fileStream.end(fileBuffer);
+  
+	  await new Promise((resolve, reject) => {
+		fileStream.on('finish', resolve);
+		fileStream.on('error', reject);
+	  });
+  
+	  const [fileUrl] = await fileUpload.getSignedUrl({
+		action: 'read',
+		expires: '03-01-2500', // Set an expiration date for the URL
+	  });
+  
+	  res.json({ fileUrl });
+	} catch (error) {
+	  console.error(error); // Log the error for debugging purposes
+	  res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
+	}
+  });
 // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
 
 // const userRef = db.collection('users');: This line creates a reference to the "users" collection in Firestore.
