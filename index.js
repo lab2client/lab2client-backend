@@ -143,7 +143,7 @@ app.post('/upload_picture', async (req, res) => {
 		const file = bucket.file(`${Date.now()}_${crypto.randomBytes(16).toString('hex')}_${fileBuffer.name}`);
   		await file.save(Buffer.from(fileBuffer.data.data), { contentType: fileBuffer.mimetype });
 
-		res.json({ url: file.publicUrl() });
+		res.json({ url: file.getSignedUrl() });
 	} catch (error) {
 		console.error(error); // Log the error for debugging purposes
 		res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
