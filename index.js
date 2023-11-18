@@ -141,9 +141,14 @@ app.post('/upload_picture', async (req, res) => {
 		console.log(fileBuffer);
 
 		const file = bucket.file(`${Date.now()}_${crypto.randomBytes(16).toString('hex')}_${fileBuffer.name}`);
-  		await file.save(Buffer.from(fileBuffer.data.data), { contentType: fileBuffer.mimetype });
+		await file.save(Buffer.from(fileBuffer.data.data), { contentType: fileBuffer.mimetype });
 
-		res.json({ url: file.getSignedUrl() });
+		const [fileUrl] = await file.getSignedUrl({
+			action: 'read',
+			expires: '03-01-2500', // Set an expiration date for the URL
+		});
+
+		res.json({ url: fileUrl });
 	} catch (error) {
 		console.error(error); // Log the error for debugging purposes
 		res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
