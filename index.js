@@ -21,9 +21,8 @@ const stripe = require('stripe')('sk_test_51NMaMTIprkPPYKcJ9uAibY8qhRuNj9DDTHtbe
 var stringSimilarity = require("string-similarity");
 const admin = require("firebase-admin");
 const credentials = require('./key.json');
-const stripeWebhookSecret = 'whsec_ToSEYibnMqWxWXZYrIox7u8OutnSSbwK'; 
+const stripeWebhookSecret = 'whsec_ToSEYibnMqWxWXZYrIox7u8OutnSSbwK';
 const nodemailer = require('nodemailer');
-
 
 admin.initializeApp({
 	credential: admin.credential.cert(credentials)
@@ -38,35 +37,35 @@ app.use(cors());
 // It is typically used when expecting JSON data in the request body.
 app.use((req, res, next) => {
 	if (req.originalUrl === '/stripe-webhook') {
-	  // Skip parsing for the Stripe webhook route
-	  next();
+		// Skip parsing for the Stripe webhook route
+		next();
 	} else {
-	  // Parse JSON and URL-encoded payloads for other routes
-	  express.json()(req, res, next);
+		// Parse JSON and URL-encoded payloads for other routes
+		express.json()(req, res, next);
 	}
-  });
+});
 
-  app.use((req, res, next) => {
+app.use((req, res, next) => {
 	if (req.originalUrl === '/stripe-webhook') {
-	  // Skip parsing for the Stripe webhook route
-	  next();
+		// Skip parsing for the Stripe webhook route
+		next();
 	} else {
-	  // Parse JSON and URL-encoded payloads for other routes
-	  express.urlencoded({ extended: true })(req, res, next);
+		// Parse JSON and URL-encoded payloads for other routes
+		express.urlencoded({ extended: true })(req, res, next);
 	}
-  });
+});
 
 
 //  This code initializes a Firestore instance using the admin object.
 //  It suggests that you are using Firebase Admin SDK to interact with Firestore, which is a NoSQL document database provided by Firebase.
 const db = admin.firestore();
 const storage = admin.storage();
-const bucket = storage.bucket('gs://lab2client.appspot.com'); 
+const bucket = storage.bucket('gs://lab2client.appspot.com');
 // This API endpoint (POST /create) is used to create a new lab document in the system. It expects a JSON payload in the request body with the following properties
 // Upon a successful request, a new lab document will be created in the system with the provided information.
 app.post("/create", async (req, res) => {
 	try {
-	
+
 		const labjson = {
 			user_unique_id: req.body.user_unique_id,
 			identification: {
@@ -131,47 +130,25 @@ app.post("/create", async (req, res) => {
 	catch (error) {
 		console.error(error); // Log the error for debugging purposes
 		res.status(500).send("Internal Server Error"); // Send a generic error response
-	  }
+	}
 });
 
 app.post('/upload_picture', async (req, res) => {
 	try {
-	  if (!req.files || !req.files.file) {
-		return res.status(400).json({ error: 'No file uploaded' });
-	  }
-  
-	  const fileBuffer = req.files.file.data; // Access the file data from the request
-  
-	  const uniqueFilename = `${Date.now()}_${crypto.randomBytes(16).toString('hex')}.jpg`;
-  
-	  const fileUpload = bucket.file(uniqueFilename);
-	  const metadata = {
-		contentType: 'images',
-	  };
-  
-	  const fileStream = fileUpload.createWriteStream({
-		metadata,
-		resumable: false, // Disable resumable uploads
-	  });
-  
-	  fileStream.end(fileBuffer);
-  
-	  await new Promise((resolve, reject) => {
-		fileStream.on('finish', resolve);
-		fileStream.on('error', reject);
-	  });
-  
-	  const [fileUrl] = await fileUpload.getSignedUrl({
-		action: 'read',
-		expires: '03-01-2500', // Set an expiration date for the URL
-	  });
-  
-	  res.json({ fileUrl });
+
+		const fileBuffer = JSON.parse(JSON.stringify(req.files)).image;
+
+		console.log(fileBuffer);
+
+		const file = bucket.file(`${Date.now()}_${crypto.randomBytes(16).toString('hex')}_${fileBuffer.name}`);
+  		await file.save(Buffer.from(fileBuffer.data.data), { contentType: fileBuffer.mimetype });
+
+		res.json({ url: file.publicUrl() });
 	} catch (error) {
-	  console.error(error); // Log the error for debugging purposes
-	  res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
+		console.error(error); // Log the error for debugging purposes
+		res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
 	}
-  });
+});
 
 // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
 
@@ -682,71 +659,71 @@ app.get('/orders/received/:field', async (req, res) => {
 const transporter = nodemailer.createTransport({
 	service: 'Gmail', // e.g., 'Gmail' for Gmail
 	auth: {
-	  user: 'l2cpaymentnotification@gmail.com', // your email address
-	  pass: 'oxqc qkfc tnrh orji', // your email password
+		user: 'l2cpaymentnotification@gmail.com', // your email address
+		pass: 'oxqc qkfc tnrh orji', // your email password
 	},
-  });
+});
 
 
 // Define a route to handle incoming Stripe webhooks
-app.post('/stripe-webhook', express.raw({type: 'application/json'}), (req, res) => {
+app.post('/stripe-webhook', express.raw({ type: 'application/json' }), (req, res) => {
 	try {
-	  const sig = req.headers['stripe-signature'];
-      
-	  let event;
-	  event = stripe.webhooks.constructEvent(req.body, sig, stripeWebhookSecret);
-  
-	  
+		const sig = req.headers['stripe-signature'];
 
-	  // Handle different types of Stripe webhook events
-	  switch (event.type) {
-		case 'invoice.paid': // Use the 'invoice.paid' event to capture the payment of an invoice
-		  // Extract invoice information from the event
-		  const currency = event.data.object.currency;
-		  const user_id = event.data.object.customer;
-		  const amount = event.data.object.amount_paid; // Convert from cents to dollars
-		  // Get the LabID from the invoice's metadata
-		  const lab_owner_email = event.data.object.lines.data[0].metadata.lab_owner_email; 
-          const user_email = event.data.object.lines.data[0].metadata.user_email; 
-          const date = new Date();
-		  const lab_owner_id = event.data.object.lines.data[0].metadata.lab_owner_id;
+		let event;
+		event = stripe.webhooks.constructEvent(req.body, sig, stripeWebhookSecret);
 
-		  // Create an object to store in the Firestore database
-		  const paymentData = {
-			currency,
-			user_id,
-			lab_owner_email,
-            amount,
-            lab_owner_id,
-			user_email,
-			date
-		  };
 
-		  // Send an email to labOwnerEmail
-		  sendEmailToLabOwner(paymentData);
-  
-		  // Store payment information in the Firestore database
-		  db.collection('transactions').add(paymentData);
-  
-		  res.status(200).end(); // Respond to the webhook with a 200 OK status
-		  break;
-  
-		default:
-		  res.status(400).send('Unhandled event type');
-	  }
+
+		// Handle different types of Stripe webhook events
+		switch (event.type) {
+			case 'invoice.paid': // Use the 'invoice.paid' event to capture the payment of an invoice
+				// Extract invoice information from the event
+				const currency = event.data.object.currency;
+				const user_id = event.data.object.customer;
+				const amount = event.data.object.amount_paid; // Convert from cents to dollars
+				// Get the LabID from the invoice's metadata
+				const lab_owner_email = event.data.object.lines.data[0].metadata.lab_owner_email;
+				const user_email = event.data.object.lines.data[0].metadata.user_email;
+				const date = new Date();
+				const lab_owner_id = event.data.object.lines.data[0].metadata.lab_owner_id;
+
+				// Create an object to store in the Firestore database
+				const paymentData = {
+					currency,
+					user_id,
+					lab_owner_email,
+					amount,
+					lab_owner_id,
+					user_email,
+					date
+				};
+
+				// Send an email to labOwnerEmail
+				sendEmailToLabOwner(paymentData);
+
+				// Store payment information in the Firestore database
+				db.collection('transactions').add(paymentData);
+
+				res.status(200).end(); // Respond to the webhook with a 200 OK status
+				break;
+
+			default:
+				res.status(400).send('Unhandled event type');
+		}
 	} catch (error) {
-	  console.error('Error handling Stripe webhook:', error);
-	  res.status(400).send('Webhook Error');
+		console.error('Error handling Stripe webhook:', error);
+		res.status(400).send('Webhook Error');
 	}
-  });
+});
 
-    // Function to send an email to labOwnerEmail
-	function sendEmailToLabOwner(paymentData) {
-		const mailOptions = {
-			from: 'l2cpaymentnotification@gmail.com',
-			to: paymentData.labOwnerEmail,
-			subject: 'Payment Notification',
-			html: `
+// Function to send an email to labOwnerEmail
+function sendEmailToLabOwner(paymentData) {
+	const mailOptions = {
+		from: 'l2cpaymentnotification@gmail.com',
+		to: paymentData.labOwnerEmail,
+		subject: 'Payment Notification',
+		html: `
             <html>
 			<body>
 			  <p>Dear Lab Owner,</p>
@@ -758,18 +735,18 @@ app.post('/stripe-webhook', express.raw({type: 'application/json'}), (req, res) 
 			</body>
 			</html>
 			`,
-		  };
-	
-		transporter.sendMail(mailOptions, (error, info) => {
+	};
+
+	transporter.sendMail(mailOptions, (error, info) => {
 		if (error) {
 			console.error('Error sending email:', error);
 		} else {
 			console.log('Email sent:', info.response);
 		}
-		});
-	}
-  
-  
+	});
+}
+
+
 app.get("/home", (req, res) => {
 	res.send("Hello we are Lab2Client Team")
 })
@@ -867,7 +844,7 @@ app.put("/updatelab/:id", async (req, res) => {
 
 app.get('payment/balance', async (req, res) => {
 
-		try {
+	try {
 		const email = req.body.email;
 		let customer;
 		const existingCustomer = await stripe.customers.list({ email: email, limit: 1 });
@@ -875,18 +852,18 @@ app.get('payment/balance', async (req, res) => {
 		if (existingCustomer.data.length > 0) {
 			customer = existingCustomer.data[0];
 		}
-	  const customerId = customer.id; 
-  
-	  const customer1 = await stripe.customers.retrieve(customerId);
-	  const balance = customer1.balance;
-	  res.json({ balance: balance });
-	  
+		const customerId = customer.id;
+
+		const customer1 = await stripe.customers.retrieve(customerId);
+		const balance = customer1.balance;
+		res.json({ balance: balance });
+
 	} catch (error) {
-	  // Handle any errors
-	  console.error(error);
-	  res.status(500).json({ error: 'Failed to retrieve balance' });
+		// Handle any errors
+		console.error(error);
+		res.status(500).json({ error: 'Failed to retrieve balance' });
 	}
-  });
+});
 
 
 app.get('/payment/sent/:field', async (req, res) => {
@@ -894,17 +871,17 @@ app.get('/payment/sent/:field', async (req, res) => {
 		const user_search = req.params.field;
 		const userRef = db.collection('transactions');
 		const snapshot = await userRef.where('user_id', '==', user_search).get();
-	
+
 		let array = [];
 		snapshot.forEach((doc) => {
 			array.push(doc.data());
 		});
-	
+
 		res.send(array);
 	} catch (error) {
 		res.status(500).send(error);
 	}
-	
+
 });
 
 app.get('/payment/received/:field', async (req, res) => {
@@ -912,17 +889,17 @@ app.get('/payment/received/:field', async (req, res) => {
 		const user_search = req.params.field;
 		const userRef = db.collection('transactions');
 		const snapshot = await userRef.where('lab_owner_id', '==', user_search).get();
-	
+
 		let array = [];
 		snapshot.forEach((doc) => {
 			array.push(doc.data());
 		});
-	
+
 		res.send(array);
 	} catch (error) {
 		res.status(500).send(error);
 	}
-	
+
 });
 
 
