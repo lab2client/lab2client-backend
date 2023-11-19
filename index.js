@@ -381,37 +381,20 @@ app.get('/search_word/:field', async (req, res) => {
 			throw error
 		}
 		user_search_lower = user_search.toLowerCase()
-		console.log(user_search);
 		const userRef = db.collection('users');
 		const snapshot = await userRef.get();
 
 		let array = [];
 		snapshot.forEach((doc) => {
 
-
-			let word = ""
-
-			const facility = doc.data().identification.research_facillity;
-			const institution = doc.data().identification.institution_name;
-			const building = doc.data().identification.building_name;
-			const DESCRIPTION_OF_YOUR_FACILITY = doc.data().research.DESCRIPTION_OF_YOUR_FACILITY;
-			const areas_of_expertise = doc.data().research.areas_of_expertise;
-			const Research_services = doc.data().research.Research_services;
-			const DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE = doc.data().research.DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE;
-			const PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS = doc.data().research.PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS;
-			const Additional_information = doc.data().research.Additional_information;
-			const research_fields = doc.data().Fields_of_research.fields;
-			const applications = doc.data().Sectors_of_application.applications;
-
-			let research_array = research_fields.toString().replace(/,/g, ' , ');
-			let application_array = applications.toString().replace(/,/g, ' , ');
-
-
-
-			word += facility + " " + institution + " " + building + " " + DESCRIPTION_OF_YOUR_FACILITY +
-				" " + areas_of_expertise + " " + Research_services + " " + DESCRIPTION_OF_RESEARCH_INFRASTRUCTURE + " " +
-				PRIVATE_AND_PUBLIC_SECTOR_RESEARCH_PARTNERS + " " + Additional_information + " " + application_array + " " + research_array
-
+			const partsToConcatenate = [
+				JSON.stringify(doc.data().lab_equipment),
+				JSON.stringify(doc.data().Fields_of_research.fields),
+				doc.data().identification.institution_name,
+				doc.data().identification.research_facillity
+			  ];
+			
+			  const word = partsToConcatenate.join('');
 			if (word.toLowerCase().includes(user_search_lower)) {
 				array.push(doc.data());
 			}
