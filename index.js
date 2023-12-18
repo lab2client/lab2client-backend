@@ -137,10 +137,8 @@ app.post('/upload_picture', async (req, res) => {
 	try {
 
 		const fileBuffer = JSON.parse(JSON.stringify(req.files)).image;
-
-		console.log(fileBuffer);
-
-		const file = bucket.file(`${Date.now()}_${crypto.randomBytes(16).toString('hex')}_${fileBuffer.name}`);
+		const filename = `${Date.now()}_${crypto.randomBytes(16).toString('hex')}_${fileBuffer.name}`;
+		const file = bucket.file(filename);
 		await file.save(Buffer.from(fileBuffer.data.data), { contentType: fileBuffer.mimetype });
 
 		const [fileUrl] = await file.getSignedUrl({
@@ -148,11 +146,44 @@ app.post('/upload_picture', async (req, res) => {
 			expires: '03-01-2500', // Set an expiration date for the URL
 		});
 
-		res.json({ url: fileUrl });
+		res.json({ url: fileUrl, filename });
 	} catch (error) {
 		console.error(error); // Log the error for debugging purposes
 		res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
 	}
+});
+
+app.delete('/delete_picture', async (req, res) => {
+	try {
+		const filename = req.body.filename;
+
+		const file = bucket.file(filename);
+		await file.delete();
+
+		res.status(200).json({ filename });
+	} catch (error) {
+		console.error(error); // Log the error for debugging purposes
+		res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
+	}
+	// try {
+
+	// 	const fileBuffer = JSON.parse(JSON.stringify(req.files)).image;
+
+	// 	console.log(fileBuffer);
+
+	// 	const file = bucket.file(`${Date.now()}_${crypto.randomBytes(16).toString('hex')}_${fileBuffer.name}`);
+	// 	await file.save(Buffer.from(fileBuffer.data.data), { contentType: fileBuffer.mimetype });
+
+	// 	const [fileUrl] = await file.getSignedUrl({
+	// 		action: 'read',
+	// 		expires: '03-01-2500', // Set an expiration date for the URL
+	// 	});
+
+	// 	res.json({ url: fileUrl });
+	// } catch (error) {
+	// 	console.error(error); // Log the error for debugging purposes
+	// 	res.status(500).json({ error: 'Internal Server Error' }); // Send a generic error response
+	// }
 });
 
 // app.get('/getall', async (req, res) => { ... }): This code defines a route handler for the GET request to the '/getall' endpoint.
@@ -392,9 +423,9 @@ app.get('/search_word/:field', async (req, res) => {
 				JSON.stringify(doc.data().Fields_of_research.fields),
 				doc.data().identification.institution_name,
 				doc.data().identification.research_facillity
-			  ];
-			
-			  const word = partsToConcatenate.join('');
+			];
+
+			const word = partsToConcatenate.join('');
 			if (word.toLowerCase().includes(user_search_lower)) {
 				array.push(doc.data());
 			}
